@@ -82,9 +82,12 @@ public class WritePaddingAccessors extends Recipe {
 
                         if (fqn != null && elementType != null) {
                             c = switch (fqn.getClassName()) {
-                                case "PostgresqlContainer" -> writePaddedGetterWithers(c, varDec, elementType, "Container");
-                                case "PostgresqlLeftPadded" -> writePaddedGetterWithers(c, varDec, elementType, "LeftPadded");
-                                case "PostgresqlRightPadded" -> writePaddedGetterWithers(c, varDec, elementType, "RightPadded");
+                                case "PostgresqlContainer" ->
+                                        writePaddedGetterWithers(c, varDec, elementType, "Container");
+                                case "PostgresqlLeftPadded" ->
+                                        writePaddedGetterWithers(c, varDec, elementType, "LeftPadded");
+                                case "PostgresqlRightPadded" ->
+                                        writePaddedGetterWithers(c, varDec, elementType, "RightPadded");
                                 default -> c;
                             };
                         }

@@ -170,7 +170,7 @@ public class WriteModel extends Recipe {
 
             boolean padded = c.getBody().getStatements().stream().anyMatch(this::isPadded);
 
-            if(c.getImplements() == null) {
+            if (c.getImplements() == null) {
                 c = c.withTemplate(implementsTree, c.getCoordinates().addImplementsClause());
             }
 
@@ -195,7 +195,8 @@ public class WriteModel extends Recipe {
                             c = switch (fqn.getClassName()) {
                                 case "PostgresqlContainer" -> writeContainerGetterWithers(c, varDec, elementType);
                                 case "PostgresqlLeftPadded" -> writePaddedGetterWithers(c, varDec, elementType, "Left");
-                                case "PostgresqlRightPadded" -> writePaddedGetterWithers(c, varDec, elementType, "Right");
+                                case "PostgresqlRightPadded" ->
+                                        writePaddedGetterWithers(c, varDec, elementType, "Right");
                                 default -> c.withTemplate(withGetterAnnotations, varDec.getCoordinates()
                                         .addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
                             };
@@ -221,7 +222,7 @@ public class WriteModel extends Recipe {
                 if (statement instanceof J.VariableDeclarations && i > 0) {
                     Statement previous = statements.get(i - 1);
                     if (!((J.VariableDeclarations) statement).getAllAnnotations().isEmpty() ||
-                        (previous instanceof J.VariableDeclarations) && !((J.VariableDeclarations) previous).getAllAnnotations().isEmpty()) {
+                            (previous instanceof J.VariableDeclarations) && !((J.VariableDeclarations) previous).getAllAnnotations().isEmpty()) {
                         return statement.withPrefix(Space.format("\n\n"));
                     }
                 }
@@ -298,7 +299,7 @@ public class WriteModel extends Recipe {
                 }
 
                 J.Block b = block.withStatements(ListUtils.map(block.getStatements(), s -> s instanceof J.ClassDeclaration &&
-                                                                                           !(((J.ClassDeclaration) s).getSimpleName().equals("CompilationUnit")) ? null : s));
+                        !(((J.ClassDeclaration) s).getSimpleName().equals("CompilationUnit")) ? null : s));
                 List<Statement> statements = new ArrayList<>(b.getStatements());
                 statements.addAll(ListUtils.map(modelClasses,
                         mc -> (J.ClassDeclaration) writeModelClass.visitNonNull(mc, ctx, getCursor().getParentOrThrow())));

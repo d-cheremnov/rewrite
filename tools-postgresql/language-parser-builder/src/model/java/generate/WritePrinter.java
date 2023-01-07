@@ -23,7 +23,10 @@ import org.openrewrite.java.JavaIsoVisitor;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.JavaVisitor;
-import org.openrewrite.java.tree.*;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.Statement;
+import org.openrewrite.java.tree.TypeUtils;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -86,8 +89,8 @@ public class WritePrinter extends Recipe {
                                     }
                                     String typeParam = ((J.Identifier) requireNonNull(((J.ParameterizedType) varDec.getTypeExpression()).getTypeParameters()).get(0)).getSimpleName();
                                     fields.add("for(Postgresql." + typeParam + " " + loopVar + " : " + paramName + ".get" + capitalizedName + "()) {\n" +
-                                               "    // TODO print each element\n" +
-                                               "}");
+                                            "    // TODO print each element\n" +
+                                            "}");
                                     break;
                                 case "String":
                                     fields.add("p.append(" + paramName + ".get" + capitalizedName + "());");
@@ -106,12 +109,12 @@ public class WritePrinter extends Recipe {
                     StringBuilder template = new StringBuilder();
 
                     JavaTemplate visitMethod = JavaTemplate.builder(this::getCursor, "" +
-                                                                                     "public Postgresql visit#{}(Postgresql.#{} #{}, PrintOutputCapture<P> p) {" +
-                                                                                     "    visitSpace(#{}.getPrefix(), p);" +
-                                                                                     "    visitMarkers(#{}.getMarkers(), p);" +
-                                                                                     "    #{}" +
-                                                                                     "    return #{};" +
-                                                                                     "}"
+                                    "public Postgresql visit#{}(Postgresql.#{} #{}, PrintOutputCapture<P> p) {" +
+                                    "    visitSpace(#{}.getPrefix(), p);" +
+                                    "    visitMarkers(#{}.getMarkers(), p);" +
+                                    "    #{}" +
+                                    "    return #{};" +
+                                    "}"
                             )
                             .javaParser(parser)
 //                            .doAfterVariableSubstitution(System.out::println)

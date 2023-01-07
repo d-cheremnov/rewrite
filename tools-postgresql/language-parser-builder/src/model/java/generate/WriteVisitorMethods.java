@@ -24,7 +24,10 @@ import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.JavaVisitor;
 import org.openrewrite.java.search.FindAnnotations;
-import org.openrewrite.java.tree.*;
+import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.Statement;
+import org.openrewrite.java.tree.TypeUtils;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -99,7 +102,7 @@ public class WriteVisitorMethods extends Recipe {
                                     fields.add("if(" + varName + ".getPadding().get" + capitalizedName + "() != null) {");
                                 }
                                 fields.add(varName + " = " + varName + ".getPadding().with" + capitalizedName + "(visitLeftPadded(" +
-                                           varName + ".getPadding().get" + capitalizedName + "(), p));");
+                                        varName + ".getPadding().get" + capitalizedName + "(), p));");
                                 if (nullable) {
                                     fields.add("}");
                                 }
@@ -109,7 +112,7 @@ public class WriteVisitorMethods extends Recipe {
                                     fields.add("if(" + varName + ".getPadding().get" + capitalizedName + "() != null) {");
                                 }
                                 fields.add(varName + " = " + varName + ".getPadding().with" + capitalizedName + "(visitRightPadded(" +
-                                           varName + ".getPadding().get" + capitalizedName + "(), p));");
+                                        varName + ".getPadding().get" + capitalizedName + "(), p));");
                                 if (nullable) {
                                     fields.add("}");
                                 }
@@ -122,13 +125,13 @@ public class WriteVisitorMethods extends Recipe {
                                 String elemListType = requireNonNull(TypeUtils.asFullyQualified(requireNonNull(parameterizedType.getTypeParameters()).get(0).getType()))
                                         .getClassName();
                                 fields.add(varName + " = " + varName + ".with" + capitalizedName + "(ListUtils.map(" +
-                                           varName + ".get" + capitalizedName + "(), t -> (" + elemListType +
-                                           ") visit(t, p)));");
+                                        varName + ".get" + capitalizedName + "(), t -> (" + elemListType +
+                                        ") visit(t, p)));");
                                 break;
                             default:
                                 if (elemType.getClassName().startsWith("Postgresql")) {
                                     fields.add(varName + " = " + varName + ".with" + capitalizedName + "((" +
-                                               elemType.getClassName() + ") visit(" + varName + ".get" + capitalizedName + "(), p));");
+                                            elemType.getClassName() + ") visit(" + varName + ".get" + capitalizedName + "(), p));");
                                 }
                         }
                     }

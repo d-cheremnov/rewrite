@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 the original author or authors.
+ * Copyright 2023. Asvoip team: Dmitry Cheremnov.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package org.openrewrite.postgresql;
 
 import org.intellij.lang.annotations.Language;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.postgresql.tree.Postgresql;
 import org.openrewrite.test.SourceSpec;
 import org.openrewrite.test.SourceSpecs;
-import org.openrewrite.postgresql.tree.Postgresql;
 
 import java.util.function.Consumer;
 
@@ -44,7 +44,7 @@ public class Assertions {
     }
 
     public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, @Language("SQL") @Nullable String after,
-                                   Consumer<SourceSpec<Postgresql.Documents>> spec) {
+                                         Consumer<SourceSpec<Postgresql.Documents>> spec) {
         SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, s -> after);
         spec.accept(doc);
         return doc;

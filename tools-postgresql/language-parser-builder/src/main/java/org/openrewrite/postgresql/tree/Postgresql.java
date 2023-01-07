@@ -1,3 +1,18 @@
+/*
+ * Copyright 2023. Asvoip team: Dmitry Cheremnov.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * https://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.openrewrite.postgresql.tree;
 
 import lombok.*;
@@ -78,110 +93,110 @@ public interface Postgresql extends Tree {
         }
     }
 
-@ToString
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@RequiredArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-class Document implements Postgresql {
-    @Nullable
-    @NonFinal
-    transient WeakReference<Padding> padding;
-
-@Getter
-    @EqualsAndHashCode.Include
-    @With
-    UUID id;
-
-@Getter
-    @With
-    Space prefix;
-
-@Getter
-    @With
-    Markers markers;
-
-@Getter
-    @With
-    Path sourcePath;
-
-@Getter
-    @With
-    Charset charset;
-
-PostgresqlContainer<Expression> expressions;
-
-    @Override
-    public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
-        return v.visitDocument(this, p);
-    }
-
-    public List<Expression> getExpressions() {
-        return expressions.getElements();
-    }
-
-    public Document withExpressions(List<Expression> expressions) {
-        return getPadding().withExpressions(this.expressions.getPadding().withElements(PostgresqlRightPadded.withElements(
-                this.expressions.getPadding().getElements(), expressions)));
-    }
-
-    public Padding getPadding() {
-        Padding p;
-        if (this.padding == null) {
-            p = new Padding(this);
-            this.padding = new WeakReference<>(p);
-        } else {
-            p = this.padding.get();
-            if (p == null || p.t != this) {
-                p = new Padding(this);
-                this.padding = new WeakReference<>(p);
-            }
-        }
-        return p;
-    }
-
+    @ToString
+    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
     @RequiredArgsConstructor
-    public static class Padding {
-        private final Document t;
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    class Document implements Postgresql {
+        @Nullable
+        @NonFinal
+        transient WeakReference<Padding> padding;
 
-        public PostgresqlContainer<Expression> getExpressions() {
-            return t.expressions;
-        }
-
-        public Document withExpressions(PostgresqlContainer<Expression> expressions) {
-            return t.expressions == expressions ? t : new Document(t.padding, t.id, t.prefix, t.markers, t.sourcePath, t.charset, expressions);
-        }
-    }
-    }
-
-@ToString
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@RequiredArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-class KeyValue implements Expression {
-    @Nullable
-    @NonFinal
-    transient WeakReference<Padding> padding;
-
-@Getter
+        @Getter
         @EqualsAndHashCode.Include
         @With
         UUID id;
 
-@Getter
+        @Getter
         @With
         Space prefix;
 
-@Getter
+        @Getter
         @With
         Markers markers;
 
-@Getter
+        @Getter
+        @With
+        Path sourcePath;
+
+        @Getter
+        @With
+        Charset charset;
+
+        PostgresqlContainer<Expression> expressions;
+
+        @Override
+        public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
+            return v.visitDocument(this, p);
+        }
+
+        public List<Expression> getExpressions() {
+            return expressions.getElements();
+        }
+
+        public Document withExpressions(List<Expression> expressions) {
+            return getPadding().withExpressions(this.expressions.getPadding().withElements(PostgresqlRightPadded.withElements(
+                    this.expressions.getPadding().getElements(), expressions)));
+        }
+
+        public Padding getPadding() {
+            Padding p;
+            if (this.padding == null) {
+                p = new Padding(this);
+                this.padding = new WeakReference<>(p);
+            } else {
+                p = this.padding.get();
+                if (p == null || p.t != this) {
+                    p = new Padding(this);
+                    this.padding = new WeakReference<>(p);
+                }
+            }
+            return p;
+        }
+
+        @RequiredArgsConstructor
+        public static class Padding {
+            private final Document t;
+
+            public PostgresqlContainer<Expression> getExpressions() {
+                return t.expressions;
+            }
+
+            public Document withExpressions(PostgresqlContainer<Expression> expressions) {
+                return t.expressions == expressions ? t : new Document(t.padding, t.id, t.prefix, t.markers, t.sourcePath, t.charset, expressions);
+            }
+        }
+    }
+
+    @ToString
+    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+    @RequiredArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    class KeyValue implements Expression {
+        @Nullable
+        @NonFinal
+        transient WeakReference<Padding> padding;
+
+        @Getter
+        @EqualsAndHashCode.Include
+        @With
+        UUID id;
+
+        @Getter
+        @With
+        Space prefix;
+
+        @Getter
+        @With
+        Markers markers;
+
+        @Getter
         @With
         Key key;
 
-PostgresqlLeftPadded<TValue> value;
+        PostgresqlLeftPadded<TValue> value;
 
         @Override
         public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
@@ -197,43 +212,43 @@ PostgresqlLeftPadded<TValue> value;
             return getPadding().withValue(PostgresqlLeftPadded.withElement(this.value, value));
         }
 
-    public Padding getPadding() {
-        Padding p;
-        if (this.padding == null) {
-            p = new Padding(this);
-            this.padding = new WeakReference<>(p);
-        } else {
-            p = this.padding.get();
-            if (p == null || p.t != this) {
+        public Padding getPadding() {
+            Padding p;
+            if (this.padding == null) {
                 p = new Padding(this);
                 this.padding = new WeakReference<>(p);
+            } else {
+                p = this.padding.get();
+                if (p == null || p.t != this) {
+                    p = new Padding(this);
+                    this.padding = new WeakReference<>(p);
+                }
+            }
+            return p;
+        }
+
+        @RequiredArgsConstructor
+        public static class Padding {
+            private final KeyValue t;
+
+            public PostgresqlLeftPadded<TValue> getValue() {
+                return t.value;
+            }
+
+            public KeyValue withValue(PostgresqlLeftPadded<TValue> value) {
+                return t.value == value ? t : new KeyValue(t.padding, t.id, t.prefix, t.markers, t.key, value);
             }
         }
-        return p;
     }
 
-    @RequiredArgsConstructor
-    public static class Padding {
-        private final KeyValue t;
-
-        public PostgresqlLeftPadded<TValue> getValue() {
-            return t.value;
-        }
-
-        public KeyValue withValue(PostgresqlLeftPadded<TValue> value) {
-            return t.value == value ? t : new KeyValue(t.padding, t.id, t.prefix, t.markers, t.key, value);
-        }
-    }
-    }
-
-@Value
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@With
-class BareKey implements Key {
+    @Value
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+    @With
+    class BareKey implements Key {
         @EqualsAndHashCode.Include
         UUID id;
 
-Space prefix;
+        Space prefix;
         Markers markers;
         String value;
 
@@ -243,30 +258,30 @@ Space prefix;
         }
     }
 
-@ToString
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@RequiredArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-class DottedKey implements Key {
-    @Nullable
-    @NonFinal
-    transient WeakReference<Padding> padding;
+    @ToString
+    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+    @RequiredArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    class DottedKey implements Key {
+        @Nullable
+        @NonFinal
+        transient WeakReference<Padding> padding;
 
-@Getter
+        @Getter
         @EqualsAndHashCode.Include
         @With
         UUID id;
 
-@Getter
+        @Getter
         @With
         Space prefix;
 
-@Getter
+        @Getter
         @With
         Markers markers;
 
-PostgresqlContainer<Key> keys;
+        PostgresqlContainer<Key> keys;
 
         @Override
         public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
@@ -282,43 +297,43 @@ PostgresqlContainer<Key> keys;
                     this.keys.getPadding().getElements(), keys)));
         }
 
-    public Padding getPadding() {
-        Padding p;
-        if (this.padding == null) {
-            p = new Padding(this);
-            this.padding = new WeakReference<>(p);
-        } else {
-            p = this.padding.get();
-            if (p == null || p.t != this) {
+        public Padding getPadding() {
+            Padding p;
+            if (this.padding == null) {
                 p = new Padding(this);
                 this.padding = new WeakReference<>(p);
+            } else {
+                p = this.padding.get();
+                if (p == null || p.t != this) {
+                    p = new Padding(this);
+                    this.padding = new WeakReference<>(p);
+                }
+            }
+            return p;
+        }
+
+        @RequiredArgsConstructor
+        public static class Padding {
+            private final DottedKey t;
+
+            public PostgresqlContainer<Key> getKeys() {
+                return t.keys;
+            }
+
+            public DottedKey withKeys(PostgresqlContainer<Key> keys) {
+                return t.keys == keys ? t : new DottedKey(t.padding, t.id, t.prefix, t.markers, keys);
             }
         }
-        return p;
     }
 
-    @RequiredArgsConstructor
-    public static class Padding {
-        private final DottedKey t;
-
-        public PostgresqlContainer<Key> getKeys() {
-            return t.keys;
-        }
-
-        public DottedKey withKeys(PostgresqlContainer<Key> keys) {
-            return t.keys == keys ? t : new DottedKey(t.padding, t.id, t.prefix, t.markers, keys);
-        }
-    }
-    }
-
-@Value
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@With
-class LiteralString implements Key, TValue {
+    @Value
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+    @With
+    class LiteralString implements Key, TValue {
         @EqualsAndHashCode.Include
         UUID id;
 
-Space prefix;
+        Space prefix;
         Markers markers;
         String value;
         String valueSource;
@@ -329,71 +344,71 @@ Space prefix;
         }
     }
 
-@ToString
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-@RequiredArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-class Array implements Postgresql {
-    @Nullable
-    @NonFinal
-    transient WeakReference<Padding> padding;
+    @ToString
+    @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+    @RequiredArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    class Array implements Postgresql {
+        @Nullable
+        @NonFinal
+        transient WeakReference<Padding> padding;
 
-@Getter
-    @EqualsAndHashCode.Include
-    @With
-    UUID id;
+        @Getter
+        @EqualsAndHashCode.Include
+        @With
+        UUID id;
 
-@Getter
-    @With
-    Space prefix;
+        @Getter
+        @With
+        Space prefix;
 
-@Getter
-    @With
-    Markers markers;
+        @Getter
+        @With
+        Markers markers;
 
-PostgresqlContainer<TValue> values;
+        PostgresqlContainer<TValue> values;
 
-    @Override
-    public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
-        return v.visitArray(this, p);
-    }
+        @Override
+        public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
+            return v.visitArray(this, p);
+        }
 
-    public List<TValue> getValues() {
-        return values.getElements();
-    }
+        public List<TValue> getValues() {
+            return values.getElements();
+        }
 
-    public Array withValues(List<TValue> values) {
-        return getPadding().withValues(this.values.getPadding().withElements(PostgresqlRightPadded.withElements(
-                this.values.getPadding().getElements(), values)));
-    }
+        public Array withValues(List<TValue> values) {
+            return getPadding().withValues(this.values.getPadding().withElements(PostgresqlRightPadded.withElements(
+                    this.values.getPadding().getElements(), values)));
+        }
 
-    public Padding getPadding() {
-        Padding p;
-        if (this.padding == null) {
-            p = new Padding(this);
-            this.padding = new WeakReference<>(p);
-        } else {
-            p = this.padding.get();
-            if (p == null || p.t != this) {
+        public Padding getPadding() {
+            Padding p;
+            if (this.padding == null) {
                 p = new Padding(this);
                 this.padding = new WeakReference<>(p);
+            } else {
+                p = this.padding.get();
+                if (p == null || p.t != this) {
+                    p = new Padding(this);
+                    this.padding = new WeakReference<>(p);
+                }
+            }
+            return p;
+        }
+
+        @RequiredArgsConstructor
+        public static class Padding {
+            private final Array t;
+
+            public PostgresqlContainer<TValue> getValues() {
+                return t.values;
+            }
+
+            public Array withValues(PostgresqlContainer<TValue> values) {
+                return t.values == values ? t : new Array(t.padding, t.id, t.prefix, t.markers, values);
             }
         }
-        return p;
-    }
-
-    @RequiredArgsConstructor
-    public static class Padding {
-        private final Array t;
-
-        public PostgresqlContainer<TValue> getValues() {
-            return t.values;
-        }
-
-        public Array withValues(PostgresqlContainer<TValue> values) {
-            return t.values == values ? t : new Array(t.padding, t.id, t.prefix, t.markers, values);
-        }
-    }
     }
 }
