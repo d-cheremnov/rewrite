@@ -92,4 +92,47 @@ public class PostgresqlPrinter<P> extends PostgresqlVisitor<PrintOutputCapture<P
             }
         }
     }
+
+    public Postgresql visitDocument(Postgresql.Document document, PrintOutputCapture<P> p) {
+        visitSpace(document.getPrefix(), p);
+        visitMarkers(document.getMarkers(), p);
+        visitContainer("", document.getPadding().getExpressions(), "", "", p);
+        return document;
+    }
+
+    public Postgresql visitKeyValue(Postgresql.KeyValue keyValue, PrintOutputCapture<P> p) {
+        visitSpace(keyValue.getPrefix(), p);
+        visitMarkers(keyValue.getMarkers(), p);
+        visitLeftPadded("", keyValue.getPadding().getValue(), p);
+        return keyValue;
+    }
+
+    public Postgresql visitBareKey(Postgresql.BareKey bareKey, PrintOutputCapture<P> p) {
+        visitSpace(bareKey.getPrefix(), p);
+        visitMarkers(bareKey.getMarkers(), p);
+        p.append(bareKey.getValue());
+        return bareKey;
+    }
+
+    public Postgresql visitDottedKey(Postgresql.DottedKey dottedKey, PrintOutputCapture<P> p) {
+        visitSpace(dottedKey.getPrefix(), p);
+        visitMarkers(dottedKey.getMarkers(), p);
+        visitContainer("", dottedKey.getPadding().getKeys(), "", "", p);
+        return dottedKey;
+    }
+
+    public Postgresql visitLiteralString(Postgresql.LiteralString literalString, PrintOutputCapture<P> p) {
+        visitSpace(literalString.getPrefix(), p);
+        visitMarkers(literalString.getMarkers(), p);
+        p.append(literalString.getValue());
+        p.append(literalString.getValueSource());
+        return literalString;
+    }
+
+    public Postgresql visitArray(Postgresql.Array array, PrintOutputCapture<P> p) {
+        visitSpace(array.getPrefix(), p);
+        visitMarkers(array.getMarkers(), p);
+        visitContainer("", array.getPadding().getValues(), "", "", p);
+        return array;
+    }
 }
