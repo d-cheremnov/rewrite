@@ -71,7 +71,7 @@ public class WriteModel extends Recipe {
         final JavaTemplate prefixField = JavaTemplate.builder(this::getCursor, "Space prefix;").javaParser(parser).build();
         final JavaTemplate markersField = JavaTemplate.builder(this::getCursor, "Markers markers;").javaParser(parser).build();
         final JavaTemplate paddingField = JavaTemplate.builder(this::getCursor, "@Nullable @NonFinal transient WeakReference<Padding> padding;").javaParser(parser).build();
-        final JavaTemplate implementsTree = JavaTemplate.builder(this::getCursor, "Toml").javaParser(parser).build();
+        final JavaTemplate implementsTree = JavaTemplate.builder(this::getCursor, "Postgresql").javaParser(parser).build();
 
         final JavaTemplate getPadding = JavaTemplate.builder(this::getCursor,
                 """
@@ -103,7 +103,7 @@ public class WriteModel extends Recipe {
 
         final JavaTemplate acceptMethod = JavaTemplate.builder(this::getCursor,
                 """
-                        @Override public <P> Toml acceptToml(TomlVisitor<P> v, P p) {
+                        @Override public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
                           return v.visit#{}(this, p);
                         }
                         """
@@ -120,7 +120,7 @@ public class WriteModel extends Recipe {
                                                 
                         public #{} with#{}(#{} #{}) {
                             //noinspection ConstantConditions
-                            return getPadding().with#{}(Toml#{}Padded.withElement(this.#{}, #{}));
+                            return getPadding().with#{}(Postgresql#{}Padded.withElement(this.#{}, #{}));
                         }
                         """
         ).javaParser(parser).build();
@@ -136,7 +136,7 @@ public class WriteModel extends Recipe {
                             if (#{} == null) {
                                 return this.#{} == null ? this : new #{}(#{});
                             }
-                            return getPadding().with#{}(Toml#{}Padded.withElement(this.#{}, #{}));
+                            return getPadding().with#{}(Postgresql#{}Padded.withElement(this.#{}, #{}));
                         }
                         """
         ).javaParser(parser).build();
@@ -151,7 +151,7 @@ public class WriteModel extends Recipe {
                         }
                                                 
                         public #{} with#{}(List<#{}> #{}) {
-                            return getPadding().with#{}(this.#{}.getPadding().withElements(TomlRightPadded.withElements(
+                            return getPadding().with#{}(this.#{}.getPadding().withElements(PostgresqlRightPadded.withElements(
                                 this.#{}.getPadding().getElements(), #{}));
                         }
                         """
@@ -193,9 +193,9 @@ public class WriteModel extends Recipe {
                     if (fqn != null) {
                         if (elementType != null) {
                             c = switch (fqn.getClassName()) {
-                                case "TomlContainer" -> writeContainerGetterWithers(c, varDec, elementType);
-                                case "TomlLeftPadded" -> writePaddedGetterWithers(c, varDec, elementType, "Left");
-                                case "TomlRightPadded" -> writePaddedGetterWithers(c, varDec, elementType, "Right");
+                                case "PostgresqlContainer" -> writeContainerGetterWithers(c, varDec, elementType);
+                                case "PostgresqlLeftPadded" -> writePaddedGetterWithers(c, varDec, elementType, "Left");
+                                case "PostgresqlRightPadded" -> writePaddedGetterWithers(c, varDec, elementType, "Right");
                                 default -> c.withTemplate(withGetterAnnotations, varDec.getCoordinates()
                                         .addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
                             };
@@ -283,7 +283,7 @@ public class WriteModel extends Recipe {
             }
             JavaType.FullyQualified type = TypeUtils.asFullyQualified(((J.VariableDeclarations) statement).getType());
             assert type != null;
-            return type.getClassName().contains("Padded") || type.getClassName().equals("TomlContainer");
+            return type.getClassName().contains("Padded") || type.getClassName().equals("PostgresqlContainer");
         }
     };
 
@@ -293,7 +293,7 @@ public class WriteModel extends Recipe {
             @Override
             public J.Block visitBlock(J.Block block, ExecutionContext ctx) {
                 Object parent = getCursor().getParentOrThrow().getValue();
-                if (!(parent instanceof J.ClassDeclaration) || !((J.ClassDeclaration) parent).getSimpleName().equals("Toml")) {
+                if (!(parent instanceof J.ClassDeclaration) || !((J.ClassDeclaration) parent).getSimpleName().equals("Postgresql")) {
                     return block;
                 }
 

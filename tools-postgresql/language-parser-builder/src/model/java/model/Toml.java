@@ -15,23 +15,23 @@
  */
 package model;
 
-import org.openrewrite.toml.tree.TomlContainer;
-import org.openrewrite.toml.tree.TomlLeftPadded;
+import org.openrewrite.postgresql.tree.PostgresqlContainer;
+import org.openrewrite.postgresql.tree.PostgresqlLeftPadded;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
-public interface Toml {
+public interface Postgresql {
 
     class Document {
         Path sourcePath;
         Charset charset;
-        TomlContainer<Expression> expressions;
+        PostgresqlContainer<Expression> expressions;
     }
 
     class KeyValue implements Expression {
         Key key;
-        TomlLeftPadded<TValue> value;
+        PostgresqlLeftPadded<TValue> value;
     }
 
     class BareKey implements Key {
@@ -39,7 +39,7 @@ public interface Toml {
     }
 
     class DottedKey implements Key {
-        TomlContainer<Key> keys;
+        PostgresqlContainer<Key> keys;
     }
 
     class LiteralString implements Key, TValue {
@@ -48,6 +48,6 @@ public interface Toml {
     }
 
     class Array {
-        TomlContainer<TValue> values;
+        PostgresqlContainer<TValue> values;
     }
 }

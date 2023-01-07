@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openrewrite.toml.tree;
+package org.openrewrite.postgresql.tree;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Toml white space.
+ * Postgresql white space.
  */
 @EqualsAndHashCode
 @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@ref")

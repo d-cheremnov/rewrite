@@ -50,6 +50,10 @@ if(!file("IDE.properties").exists() || includedProjects.contains("tools")) {
     includeBuild("tools")
 }
 
+if(!file("IDE.properties").exists() || includedProjects.contains("tools-postgresql")) {
+    includeBuild("tools-postgresql")
+}
+
 include(*allProjects.toTypedArray())
 
 allProjects.minus(includedProjects).forEach {

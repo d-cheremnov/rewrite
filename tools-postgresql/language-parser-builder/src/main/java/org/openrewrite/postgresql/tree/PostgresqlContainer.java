@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openrewrite.toml.tree;
+package org.openrewrite.postgresql.tree;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.RequiredArgsConstructor;
@@ -31,48 +31,48 @@ import static java.util.Collections.emptyList;
  *
  * @param <T> The type of the inner list of elements.
  */
-public class TomlContainer<T> {
+public class PostgresqlContainer<T> {
     private transient Padding<T> padding;
 
-    private static final TomlContainer<?> EMPTY = new TomlContainer<>(Space.EMPTY, emptyList(), Markers.EMPTY);
+    private static final PostgresqlContainer<?> EMPTY = new PostgresqlContainer<>(Space.EMPTY, emptyList(), Markers.EMPTY);
 
     private final Space before;
 
-    private final List<TomlRightPadded<T>> elements;
+    private final List<PostgresqlRightPadded<T>> elements;
     private final Markers markers;
 
-    private TomlContainer(Space before, List<TomlRightPadded<T>> elements, Markers markers) {
+    private PostgresqlContainer(Space before, List<PostgresqlRightPadded<T>> elements, Markers markers) {
         this.before = before;
         this.elements = elements;
         this.markers = markers;
     }
 
-    public static <T> TomlContainer<T> build(List<TomlRightPadded<T>> elements) {
+    public static <T> PostgresqlContainer<T> build(List<PostgresqlRightPadded<T>> elements) {
         return build(Space.EMPTY, elements, Markers.EMPTY);
     }
 
     @JsonCreator
-    public static <T> TomlContainer<T> build(Space before, List<TomlRightPadded<T>> elements, Markers markers) {
+    public static <T> PostgresqlContainer<T> build(Space before, List<PostgresqlRightPadded<T>> elements, Markers markers) {
         if (before.isEmpty() && elements.isEmpty()) {
             return empty();
         }
-        return new TomlContainer<>(before, elements, markers);
+        return new PostgresqlContainer<>(before, elements, markers);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> TomlContainer<T> empty() {
-        return (TomlContainer<T>) EMPTY;
+    public static <T> PostgresqlContainer<T> empty() {
+        return (PostgresqlContainer<T>) EMPTY;
     }
 
-    public TomlContainer<T> withBefore(Space before) {
+    public PostgresqlContainer<T> withBefore(Space before) {
         return this.before == before ? this : build(before, elements, markers);
     }
 
-    public TomlContainer<T> withElements(List<TomlRightPadded<T>> elements) {
+    public PostgresqlContainer<T> withElements(List<PostgresqlRightPadded<T>> elements) {
         return this.elements == elements ? this : build(before, elements, markers);
     }
 
-    public TomlContainer<T> withMarkers(Markers markers) {
+    public PostgresqlContainer<T> withMarkers(Markers markers) {
         return this.markers == markers ? this : build(before, elements, markers);
     }
 
@@ -81,14 +81,14 @@ public class TomlContainer<T> {
     }
 
     public List<T> getElements() {
-        return TomlRightPadded.getElements(elements);
+        return PostgresqlRightPadded.getElements(elements);
     }
 
     public Space getBefore() {
         return before;
     }
 
-    public TomlContainer<T> map(UnaryOperator<T> map) {
+    public PostgresqlContainer<T> map(UnaryOperator<T> map) {
         return getPadding().withElements(ListUtils.map(elements, t -> t.map(map)));
     }
 
@@ -96,7 +96,7 @@ public class TomlContainer<T> {
         return elements.isEmpty() ? Space.EMPTY : elements.get(elements.size() - 1).getAfter();
     }
 
-    public TomlContainer<T> withLastSpace(Space after) {
+    public PostgresqlContainer<T> withLastSpace(Space after) {
         return withElements(ListUtils.mapLast(elements, elem -> elem.withAfter(after)));
     }
 
@@ -109,40 +109,40 @@ public class TomlContainer<T> {
 
     @RequiredArgsConstructor
     public static class Padding<T> {
-        private final TomlContainer<T> c;
+        private final PostgresqlContainer<T> c;
 
-        public List<TomlRightPadded<T>> getElements() {
+        public List<PostgresqlRightPadded<T>> getElements() {
             return c.elements;
         }
 
-        public TomlContainer<T> withElements(List<TomlRightPadded<T>> elements) {
+        public PostgresqlContainer<T> withElements(List<PostgresqlRightPadded<T>> elements) {
             return c.elements == elements ? c : build(c.before, c.elements, c.markers);
         }
     }
 
     @Nullable
-    public static <P extends Toml> TomlContainer<P> withElementsNullable(@Nullable TomlContainer<P> before, @Nullable List<P> elements) {
+    public static <P extends Postgresql> PostgresqlContainer<P> withElementsNullable(@Nullable PostgresqlContainer<P> before, @Nullable List<P> elements) {
         if (before == null) {
             if (elements == null || elements.isEmpty()) {
                 return null;
             }
-            return TomlContainer.build(Space.EMPTY, TomlRightPadded.withElements(emptyList(), elements), Markers.EMPTY);
+            return PostgresqlContainer.build(Space.EMPTY, PostgresqlRightPadded.withElements(emptyList(), elements), Markers.EMPTY);
         }
         if (elements == null || elements.isEmpty()) {
             return null;
         }
-        return before.getPadding().withElements(TomlRightPadded.withElements(before.elements, elements));
+        return before.getPadding().withElements(PostgresqlRightPadded.withElements(before.elements, elements));
     }
 
-    public static <P extends Toml> TomlContainer<P> withElements(TomlContainer<P> before, @Nullable List<P> elements) {
+    public static <P extends Postgresql> PostgresqlContainer<P> withElements(PostgresqlContainer<P> before, @Nullable List<P> elements) {
         if (elements == null) {
             return before.getPadding().withElements(emptyList());
         }
-        return before.getPadding().withElements(TomlRightPadded.withElements(before.elements, elements));
+        return before.getPadding().withElements(PostgresqlRightPadded.withElements(before.elements, elements));
     }
 
     @Override
     public String toString() {
-        return "TomlContainer(before=" + before + ", elementCount=" + elements.size() + ')';
+        return "PostgresqlContainer(before=" + before + ", elementCount=" + elements.size() + ')';
     }
 }

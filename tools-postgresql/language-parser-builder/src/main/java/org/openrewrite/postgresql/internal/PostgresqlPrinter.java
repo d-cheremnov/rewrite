@@ -1,21 +1,21 @@
-package org.openrewrite.toml.internal;
+package org.openrewrite.postgresql.internal;
 
 import org.openrewrite.Cursor;
 import org.openrewrite.PrintOutputCapture;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Marker;
 import org.openrewrite.marker.Markers;
-import org.openrewrite.toml.TomlVisitor;
-import org.openrewrite.toml.tree.*;
+import org.openrewrite.postgresql.PostgresqlVisitor;
+import org.openrewrite.postgresql.tree.*;
 
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-public class TomlPrinter<P> extends TomlVisitor<PrintOutputCapture<P>> {
+public class PostgresqlPrinter<P> extends PostgresqlVisitor<PrintOutputCapture<P>> {
     private static final UnaryOperator<String> MARKER_WRAPPER =
             out -> "/*~~" + out + (out.isEmpty() ? "" : "~~") + ">*/";
 
-    protected void beforeSyntax(Toml t, PrintOutputCapture<P> p) {
+    protected void beforeSyntax(Postgresql t, PrintOutputCapture<P> p) {
         beforeSyntax(t.getPrefix(), t.getMarkers(), p);
     }
 
@@ -30,7 +30,7 @@ public class TomlPrinter<P> extends TomlVisitor<PrintOutputCapture<P>> {
         }
     }
 
-    protected void afterSyntax(Toml t, PrintOutputCapture<P> p) {
+    protected void afterSyntax(Postgresql t, PrintOutputCapture<P> p) {
         afterSyntax(t.getMarkers(), p);
     }
 
@@ -40,9 +40,9 @@ public class TomlPrinter<P> extends TomlVisitor<PrintOutputCapture<P>> {
         }
     }
 
-    protected void visitRightPadded(List<? extends TomlRightPadded<? extends Toml>> nodes, String suffixBetween, PrintOutputCapture<P> p) {
+    protected void visitRightPadded(List<? extends PostgresqlRightPadded<? extends Postgresql>> nodes, String suffixBetween, PrintOutputCapture<P> p) {
         for (int i = 0; i < nodes.size(); i++) {
-            TomlRightPadded<? extends Toml> node = nodes.get(i);
+            PostgresqlRightPadded<? extends Postgresql> node = nodes.get(i);
             visit(node.getElement(), p);
             visitSpace(node.getAfter(), p);
             visitMarkers(node.getMarkers(), p);
@@ -52,7 +52,7 @@ public class TomlPrinter<P> extends TomlVisitor<PrintOutputCapture<P>> {
         }
     }
 
-    protected void visitContainer(String before, @Nullable TomlContainer<? extends Toml> container,
+    protected void visitContainer(String before, @Nullable PostgresqlContainer<? extends Postgresql> container,
                                   String suffixBetween, @Nullable String after, PrintOutputCapture<P> p) {
         if (container == null) {
             return;
@@ -70,7 +70,7 @@ public class TomlPrinter<P> extends TomlVisitor<PrintOutputCapture<P>> {
         return space;
     }
 
-    protected void visitLeftPadded(@Nullable String prefix, @Nullable TomlLeftPadded<? extends Toml> leftPadded, PrintOutputCapture<P> p) {
+    protected void visitLeftPadded(@Nullable String prefix, @Nullable PostgresqlLeftPadded<? extends Postgresql> leftPadded, PrintOutputCapture<P> p) {
         if (leftPadded != null) {
             beforeSyntax(leftPadded.getBefore(), leftPadded.getMarkers(), p);
             if (prefix != null) {
@@ -81,7 +81,7 @@ public class TomlPrinter<P> extends TomlVisitor<PrintOutputCapture<P>> {
         }
     }
 
-    protected void visitRightPadded(@Nullable TomlRightPadded<? extends Toml> rightPadded, @Nullable String suffix, PrintOutputCapture<P> p) {
+    protected void visitRightPadded(@Nullable PostgresqlRightPadded<? extends Postgresql> rightPadded, @Nullable String suffix, PrintOutputCapture<P> p) {
         if (rightPadded != null) {
             beforeSyntax(Space.EMPTY, rightPadded.getMarkers(), p);
             visit(rightPadded.getElement(), p);

@@ -37,7 +37,7 @@ public class WritePrinter extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Write the boilerplate for `TomlPrinter`";
+        return "Write the boilerplate for `PostgresqlPrinter`";
     }
 
     @Override
@@ -70,13 +70,13 @@ public class WritePrinter extends Recipe {
 
                             JavaType.FullyQualified elemType = requireNonNull(TypeUtils.asFullyQualified(varDec.getType()));
                             switch (elemType.getClassName()) {
-                                case "TomlLeftPadded":
+                                case "PostgresqlLeftPadded":
                                     fields.add("visitLeftPadded(\"\"," + paramName + ".getPadding().get" + capitalizedName + "(), p);");
                                     break;
-                                case "TomlRightPadded":
+                                case "PostgresqlRightPadded":
                                     fields.add("visitRightPadded(" + paramName + ".getPadding().get" + capitalizedName + "(), \"\", p);");
                                     break;
-                                case "TomlContainer":
+                                case "PostgresqlContainer":
                                     fields.add("visitContainer(\"\", " + paramName + ".getPadding().get" + capitalizedName + "(), \"\", \"\", p);");
                                     break;
                                 case "List":
@@ -85,7 +85,7 @@ public class WritePrinter extends Recipe {
                                         loopVar = "pp";
                                     }
                                     String typeParam = ((J.Identifier) requireNonNull(((J.ParameterizedType) varDec.getTypeExpression()).getTypeParameters()).get(0)).getSimpleName();
-                                    fields.add("for(Toml." + typeParam + " " + loopVar + " : " + paramName + ".get" + capitalizedName + "()) {\n" +
+                                    fields.add("for(Postgresql." + typeParam + " " + loopVar + " : " + paramName + ".get" + capitalizedName + "()) {\n" +
                                                "    // TODO print each element\n" +
                                                "}");
                                     break;
@@ -96,7 +96,7 @@ public class WritePrinter extends Recipe {
                                     fields.add("p.append(" + paramName + ".get" + capitalizedName + "().toString());");
                                     break;
                                 default:
-                                    if (elemType.getClassName().startsWith("Toml")) {
+                                    if (elemType.getClassName().startsWith("Postgresql")) {
                                         fields.add("visit(" + paramName + ".get" + capitalizedName + "(), p);");
                                     }
                             }
@@ -106,7 +106,7 @@ public class WritePrinter extends Recipe {
                     StringBuilder template = new StringBuilder();
 
                     JavaTemplate visitMethod = JavaTemplate.builder(this::getCursor, "" +
-                                                                                     "public Toml visit#{}(Toml.#{} #{}, PrintOutputCapture<P> p) {" +
+                                                                                     "public Postgresql visit#{}(Postgresql.#{} #{}, PrintOutputCapture<P> p) {" +
                                                                                      "    visitSpace(#{}.getPrefix(), p);" +
                                                                                      "    visitMarkers(#{}.getMarkers(), p);" +
                                                                                      "    #{}" +

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openrewrite.toml.tree;
+package org.openrewrite.postgresql.tree;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -26,22 +26,22 @@ import java.util.function.UnaryOperator;
 @Value
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @With
-public class TomlLeftPadded<T> {
+public class PostgresqlLeftPadded<T> {
     Space before;
     T element;
     Markers markers;
 
-    public TomlLeftPadded<T> map(UnaryOperator<T> map) {
+    public PostgresqlLeftPadded<T> map(UnaryOperator<T> map) {
         return withElement(map.apply(element));
     }
 
     @Nullable
-    public static <T> TomlLeftPadded<T> withElement(@Nullable TomlLeftPadded<T> before, @Nullable T elements) {
+    public static <T> PostgresqlLeftPadded<T> withElement(@Nullable PostgresqlLeftPadded<T> before, @Nullable T elements) {
         if (before == null) {
             if (elements == null) {
                 return null;
             }
-            return new TomlLeftPadded<>(Space.EMPTY, elements, Markers.EMPTY);
+            return new PostgresqlLeftPadded<>(Space.EMPTY, elements, Markers.EMPTY);
         }
         if (elements == null) {
             return null;
@@ -51,10 +51,10 @@ public class TomlLeftPadded<T> {
 
     @Override
     public String toString() {
-        return "ProtoLeftPadded(before=" + before + ", element=" + element.getClass().getSimpleName() + ')';
+        return "PostgresqlLeftPadded(before=" + before + ", element=" + element.getClass().getSimpleName() + ')';
     }
 
-    public static <T> TomlLeftPadded<T> build(T element) {
-        return new TomlLeftPadded<>(Space.EMPTY, element, Markers.EMPTY);
+    public static <T> PostgresqlLeftPadded<T> build(T element) {
+        return new PostgresqlLeftPadded<>(Space.EMPTY, element, Markers.EMPTY);
     }
 }

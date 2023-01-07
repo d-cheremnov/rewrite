@@ -54,11 +54,11 @@ public class WritePaddingAccessors extends Recipe {
         final JavaTemplate paddedGetterWither = JavaTemplate.builder(this::getCursor,
                 """
                         #{}
-                        public Toml#{}<#{}> get#{}() {
+                        public Postgresql#{}<#{}> get#{}() {
                             return t.#{};
                         }
 
-                        public #{} with#{}(#{}Toml#{}<#{}> #{}) {
+                        public #{} with#{}(#{}Postgresql#{}<#{}> #{}) {
                             return t.#{} == #{} ? t : new #{}(#{});
                         }
                         """
@@ -82,9 +82,9 @@ public class WritePaddingAccessors extends Recipe {
 
                         if (fqn != null && elementType != null) {
                             c = switch (fqn.getClassName()) {
-                                case "TomlContainer" -> writePaddedGetterWithers(c, varDec, elementType, "Container");
-                                case "TomlLeftPadded" -> writePaddedGetterWithers(c, varDec, elementType, "LeftPadded");
-                                case "TomlRightPadded" -> writePaddedGetterWithers(c, varDec, elementType, "RightPadded");
+                                case "PostgresqlContainer" -> writePaddedGetterWithers(c, varDec, elementType, "Container");
+                                case "PostgresqlLeftPadded" -> writePaddedGetterWithers(c, varDec, elementType, "LeftPadded");
+                                case "PostgresqlRightPadded" -> writePaddedGetterWithers(c, varDec, elementType, "RightPadded");
                                 default -> c;
                             };
                         }
@@ -125,7 +125,7 @@ public class WritePaddingAccessors extends Recipe {
         boolean isPadded(Statement statement) {
             JavaType.FullyQualified type = TypeUtils.asFullyQualified(((J.VariableDeclarations) statement).getType());
             assert type != null;
-            return type.getClassName().contains("Padded") || type.getClassName().equals("TomlContainer");
+            return type.getClassName().contains("Padded") || type.getClassName().equals("PostgresqlContainer");
         }
     }
 
@@ -135,7 +135,7 @@ public class WritePaddingAccessors extends Recipe {
             @Override
             public J.Block visitBlock(J.Block block, ExecutionContext ctx) {
                 Object parent = getCursor().getParentOrThrow().getValue();
-                if (!(parent instanceof J.ClassDeclaration) || !((J.ClassDeclaration) parent).getSimpleName().equals("Toml")) {
+                if (!(parent instanceof J.ClassDeclaration) || !((J.ClassDeclaration) parent).getSimpleName().equals("Postgresql")) {
                     return block;
                 }
 

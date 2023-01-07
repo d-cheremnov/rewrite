@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openrewrite.toml.tree;
+package org.openrewrite.postgresql.tree;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -32,14 +32,14 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 /**
- * A Toml element that could have trailing space.
+ * A Postgresql element that could have trailing space.
  *
  * @param <T>
  */
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 @Data
-public class TomlRightPadded<T> {
+public class PostgresqlRightPadded<T> {
     @With
     T element;
 
@@ -49,20 +49,20 @@ public class TomlRightPadded<T> {
     @With
     Markers markers;
 
-    public TomlRightPadded<T> map(UnaryOperator<T> map) {
+    public PostgresqlRightPadded<T> map(UnaryOperator<T> map) {
         return withElement(map.apply(element));
     }
 
-    public static <T> List<T> getElements(List<TomlRightPadded<T>> ls) {
+    public static <T> List<T> getElements(List<PostgresqlRightPadded<T>> ls) {
         List<T> list = new ArrayList<>();
-        for (TomlRightPadded<T> l : ls) {
+        for (PostgresqlRightPadded<T> l : ls) {
             T elem = l.getElement();
             list.add(elem);
         }
         return list;
     }
 
-    public static <P extends Toml> List<TomlRightPadded<P>> withElements(List<TomlRightPadded<P>> before, List<P> elements) {
+    public static <P extends Postgresql> List<PostgresqlRightPadded<P>> withElements(List<PostgresqlRightPadded<P>> before, List<P> elements) {
         // a cheaper check for the most common case when there are no changes
         if (elements.size() == before.size()) {
             boolean hasChanges = false;
@@ -77,33 +77,33 @@ public class TomlRightPadded<T> {
             }
         }
 
-        List<TomlRightPadded<P>> after = new ArrayList<>(elements.size());
-        Map<UUID, TomlRightPadded<P>> beforeById = before.stream().collect(Collectors
+        List<PostgresqlRightPadded<P>> after = new ArrayList<>(elements.size());
+        Map<UUID, PostgresqlRightPadded<P>> beforeById = before.stream().collect(Collectors
                 .toMap(j -> j.getElement().getId(), Function.identity()));
 
         for (P t : elements) {
             if (beforeById.get(t.getId()) != null) {
-                TomlRightPadded<P> found = beforeById.get(t.getId());
+                PostgresqlRightPadded<P> found = beforeById.get(t.getId());
                 after.add(found.withElement(t));
             } else {
-                after.add(new TomlRightPadded<>(t, Space.EMPTY, Markers.EMPTY));
+                after.add(new PostgresqlRightPadded<>(t, Space.EMPTY, Markers.EMPTY));
             }
         }
 
         return after;
     }
 
-    public static <T> TomlRightPadded<T> build(T element) {
-        return new TomlRightPadded<>(element, Space.EMPTY, Markers.EMPTY);
+    public static <T> PostgresqlRightPadded<T> build(T element) {
+        return new PostgresqlRightPadded<>(element, Space.EMPTY, Markers.EMPTY);
     }
 
     @Nullable
-    public static <T> TomlRightPadded<T> withElement(@Nullable TomlRightPadded<T> before, @Nullable T elements) {
+    public static <T> PostgresqlRightPadded<T> withElement(@Nullable PostgresqlRightPadded<T> before, @Nullable T elements) {
         if (before == null) {
             if (elements == null) {
                 return null;
             }
-            return new TomlRightPadded<>(elements, Space.EMPTY, Markers.EMPTY);
+            return new PostgresqlRightPadded<>(elements, Space.EMPTY, Markers.EMPTY);
         }
         if (elements == null) {
             return null;
@@ -113,6 +113,6 @@ public class TomlRightPadded<T> {
 
     @Override
     public String toString() {
-        return "TomlRightPadded(element=" + element.getClass().getSimpleName() + ", after=" + after + ')';
+        return "PostgresqlRightPadded(element=" + element.getClass().getSimpleName() + ", after=" + after + ')';
     }
 }

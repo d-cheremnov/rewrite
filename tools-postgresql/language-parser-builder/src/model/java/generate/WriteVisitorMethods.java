@@ -38,7 +38,7 @@ public class WriteVisitorMethods extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Write the boilerplate for `TomlVisitor` and `TomlIsoVisitor`";
+        return "Write the boilerplate for `PostgresqlVisitor` and `PostgresqlIsoVisitor`";
     }
 
     @Override
@@ -47,9 +47,9 @@ public class WriteVisitorMethods extends Recipe {
             @Override
             public J visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext ctx) {
                 return switch (classDecl.getSimpleName()) {
-                    case "TomlVisitor" ->
+                    case "PostgresqlVisitor" ->
                             writeVisitorMethods.visitNonNull(classDecl, ctx, getCursor().getParentOrThrow());
-                    case "TomlIsoVisitor" ->
+                    case "PostgresqlIsoVisitor" ->
                             writeIsoVisitorMethods.visitNonNull(classDecl, ctx, getCursor().getParentOrThrow());
                     default -> classDecl;
                 };
@@ -63,8 +63,8 @@ public class WriteVisitorMethods extends Recipe {
     private final JavaVisitor<ExecutionContext> writeVisitorMethods = new JavaIsoVisitor<>() {
         final JavaTemplate visitMethod = JavaTemplate.builder(this::getCursor,
                 """
-                        public Toml visit#{}(Toml.#{} #{}, P p) {
-                            Toml.#{} #{} = #{};
+                        public Postgresql visit#{}(Postgresql.#{} #{}, P p) {
+                            Postgresql.#{} #{} = #{};
                             #{} = #{}.withPrefix(visitSpace(#{}.getPrefix(), p));
                             #{} = #{}.withMarkers(visitMarkers(#{}.getMarkers(), p));
                             #{}
@@ -94,7 +94,7 @@ public class WriteVisitorMethods extends Recipe {
 
                         JavaType.FullyQualified elemType = requireNonNull(TypeUtils.asFullyQualified(varDec.getType()));
                         switch (elemType.getClassName()) {
-                            case "TomlLeftPadded":
+                            case "PostgresqlLeftPadded":
                                 if (nullable) {
                                     fields.add("if(" + varName + ".getPadding().get" + capitalizedName + "() != null) {");
                                 }
@@ -104,7 +104,7 @@ public class WriteVisitorMethods extends Recipe {
                                     fields.add("}");
                                 }
                                 break;
-                            case "TomlRightPadded":
+                            case "PostgresqlRightPadded":
                                 if (nullable) {
                                     fields.add("if(" + varName + ".getPadding().get" + capitalizedName + "() != null) {");
                                 }
@@ -114,7 +114,7 @@ public class WriteVisitorMethods extends Recipe {
                                     fields.add("}");
                                 }
                                 break;
-                            case "TomlContainer":
+                            case "PostgresqlContainer":
                                 fields.add(varName + " = " + varName + ".getPadding().with" + capitalizedName + "(visitContainer(" + varName + ".getPadding().get" + capitalizedName + "(), p));");
                                 break;
                             case "List":
@@ -126,7 +126,7 @@ public class WriteVisitorMethods extends Recipe {
                                            ") visit(t, p)));");
                                 break;
                             default:
-                                if (elemType.getClassName().startsWith("Toml")) {
+                                if (elemType.getClassName().startsWith("Postgresql")) {
                                     fields.add(varName + " = " + varName + ".with" + capitalizedName + "((" +
                                                elemType.getClassName() + ") visit(" + varName + ".get" + capitalizedName + "(), p));");
                                 }
@@ -151,8 +151,8 @@ public class WriteVisitorMethods extends Recipe {
         final JavaTemplate isoVisitMethod = JavaTemplate.builder(this::getCursor,
                 """
                         @Override
-                        public Toml.#{} visit#{}(Toml.#{} #{}, P p) {
-                            return (Toml.#{}) super.visit#{}(#{}, p);
+                        public Postgresql.#{} visit#{}(Postgresql.#{} #{}, P p) {
+                            return (Postgresql.#{}) super.visit#{}(#{}, p);
                         }
                         """
         ).javaParser(parser).build();

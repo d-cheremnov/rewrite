@@ -50,9 +50,9 @@ public class GenerateModel {
         new GenerateModel(jp()
                 .parse(
                         List.of(
-                                Paths.get("tools/language-parser-builder/src/model/java/model/Toml.java"),
-                                Paths.get("tools/language-parser-builder/src/model/java/model/Key.java"),
-                                Paths.get("tools/language-parser-builder/src/model/java/model/TValue.java")
+                                Paths.get("tools-postgresql/language-parser-builder/src/model/java/model/Postgresql.java"),
+                                Paths.get("tools-postgresql/language-parser-builder/src/model/java/model/Key.java"),
+                                Paths.get("tools-postgresql/language-parser-builder/src/model/java/model/TValue.java")
                         ),
                         null,
                         ctx
@@ -71,29 +71,29 @@ public class GenerateModel {
     public void generate() {
         List<Result> results = new ArrayList<>();
 
-        Path TomlTreePath = Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/tree/Toml.java");
+        Path PostgresqlTreePath = Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/tree/Postgresql.java");
 
         List<Path> deps = List.of(
-                Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/TomlVisitor.java"),
-                Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/TomlIsoVisitor.java"),
-                Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/tree/TomlContainer.java"),
-                Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/tree/TomlLeftPadded.java"),
-                Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/tree/TomlRightPadded.java")
+                Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/PostgresqlVisitor.java"),
+                Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/PostgresqlIsoVisitor.java"),
+                Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/tree/PostgresqlContainer.java"),
+                Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/tree/PostgresqlLeftPadded.java"),
+                Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/tree/PostgresqlRightPadded.java")
         );
 
         results.addAll(new WriteModel(modelClasses).run(List.of(jp().parse(
-                ListUtils.concat(TomlTreePath, deps), null, ctx).get(0)), ctx).getResults());
+                ListUtils.concat(PostgresqlTreePath, deps), null, ctx).get(0)), ctx).getResults());
         results.addAll(new WriteVisitorMethods(modelClasses).run(jp().parse(
                 List.of(
-                        Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/TomlVisitor.java"),
-                        Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/TomlIsoVisitor.java")
+                        Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/PostgresqlVisitor.java"),
+                        Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/PostgresqlIsoVisitor.java")
                 ),
                 null,
                 ctx
         ), ctx).getResults());
         results.addAll(new WritePrinter(modelClasses).run(jp().parse(
                 List.of(
-                        Paths.get("tools/language-parser-builder/src/main/java/org/openrewrite/toml/internal/TomlPrinter.java")
+                        Paths.get("tools-postgresql/language-parser-builder/src/main/java/org/openrewrite/postgresql/internal/PostgresqlPrinter.java")
                 ),
                 null,
                 ctx
@@ -102,7 +102,7 @@ public class GenerateModel {
         writeResults(results);
 
         // TODO Unable to add accessors in the first phase due to some bug in JavaTemplate.
-        writeResults(new WritePaddingAccessors().run(jp().parse(List.of(TomlTreePath), null, ctx), ctx).getResults());
+        writeResults(new WritePaddingAccessors().run(jp().parse(List.of(PostgresqlTreePath), null, ctx), ctx).getResults());
     }
 
     private void writeResults(List<Result> results) {

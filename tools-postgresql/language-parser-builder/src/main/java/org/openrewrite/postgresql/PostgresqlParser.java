@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openrewrite.toml;
+package org.openrewrite.postgresql;
 
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
@@ -24,7 +24,7 @@ import org.openrewrite.Parser;
 import org.openrewrite.internal.EncodingDetectingInputStream;
 import org.openrewrite.internal.MetricsHelper;
 import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.toml.tree.Toml;
+import org.openrewrite.postgresql.tree.Postgresql;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
 
@@ -34,9 +34,9 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
-//public class TomlParser implements Parser<Toml.Document> {
+//public class PostgresqlParser implements Parser<Postgresql.Document> {
 //    @Override
-//    public List<Toml.Document> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
+//    public List<Postgresql.Document> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
 //        ParsingEventListener parsingListener = ParsingExecutionContextView.view(ctx).getParsingListener();
 //        return acceptedInputs(sourceFiles).stream()
 //                .map(sourceFile -> {
@@ -50,7 +50,7 @@ import static java.util.stream.Collectors.toList;
 //                        String sourceStr = is.readFully();
 //
 //                        // FIXME implement me!
-//                        Toml.Document document = null;
+//                        Postgresql.Document document = null;
 //
 //                        sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
 //                        parsingListener.parsed(sourceFile, document);
@@ -67,7 +67,7 @@ import static java.util.stream.Collectors.toList;
 //    }
 //
 //    @Override
-//    public List<Toml.Document> parse(@Language("xml") String... sources) {
+//    public List<Postgresql.Document> parse(@Language("xml") String... sources) {
 //        return parse(new InMemoryExecutionContext(), sources);
 //    }
 //
@@ -95,17 +95,17 @@ import static java.util.stream.Collectors.toList;
 //    public static class Builder extends Parser.Builder {
 //
 //        public Builder() {
-//            super(Toml.Document.class);
+//            super(Postgresql.Document.class);
 //        }
 //
 //        @Override
-//        public TomlParser build() {
-//            return new TomlParser();
+//        public PostgresqlParser build() {
+//            return new PostgresqlParser();
 //        }
 //
 //        @Override
 //        public String getDslName() {
-//            return "toml";
+//            return "postgresql";
 //        }
 //    }
 //}
