@@ -27,26 +27,26 @@ public class Assertions {
     private Assertions() {
     }
 
-//    public static SourceSpecs postgresql(@Language("postgresql") @Nullable String before) {
-//        return Assertions.postgresql(before, s -> {
-//        });
-//    }
-//
-//    public static SourceSpecs postgresql(@Language("postgresql") @Nullable String before, Consumer<SourceSpec<Postgresql.Document>> spec) {
-//        SourceSpec<Postgresql.Document> doc = new SourceSpec<>(Postgresql.Document.class, null, PostgresqlParser.builder(), before, null);
-//        spec.accept(xml);
-//        return xml;
-//    }
-//
-//    public static SourceSpecs postgresql(@Language("postgresql") @Nullable String before, @Language("postgresql") @Nullable String after) {
-//        return postgresql(before, after, s -> {
-//        });
-//    }
-//
-//    public static SourceSpecs postgresql(@Language("postgresql") @Nullable String before, @Language("postgresql") @Nullable String after,
-//                                   Consumer<SourceSpec<Postgresql.Document>> spec) {
-//        SourceSpec<Postgresql.Document> doc = new SourceSpec<>(Postgresql.Document.class, null, PostgresqlParser.builder(), before, s -> after);
-//        spec.accept(doc);
-//        return doc;
-//    }
+    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before) {
+        return Assertions.postgresql(before, s -> {
+        });
+    }
+
+    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, Consumer<SourceSpec<Postgresql.Documents>> spec) {
+        SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, null);
+        spec.accept(doc);
+        return doc;
+    }
+
+    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, @Language("SQL") @Nullable String after) {
+        return postgresql(before, after, s -> {
+        });
+    }
+
+    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, @Language("SQL") @Nullable String after,
+                                   Consumer<SourceSpec<Postgresql.Documents>> spec) {
+        SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, s -> after);
+        spec.accept(doc);
+        return doc;
+    }
 }

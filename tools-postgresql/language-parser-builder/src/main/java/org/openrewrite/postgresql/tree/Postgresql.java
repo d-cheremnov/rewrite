@@ -3,14 +3,15 @@ package org.openrewrite.postgresql.tree;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.openrewrite.Tree;
-import org.openrewrite.TreeVisitor;
+import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.PostgresqlVisitor;
+import org.openrewrite.postgresql.internal.PostgresqlPrinter;
 
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,46 @@ public interface Postgresql extends Tree {
 
     default Space getPrefix() {
         return Space.EMPTY;
+    }
+
+    @Value
+    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+    @With
+    class Documents implements Postgresql, SourceFile {
+        @EqualsAndHashCode.Include
+        UUID id;
+
+        Markers markers;
+        Path sourcePath;
+
+        @Nullable
+        FileAttributes fileAttributes;
+
+        @Nullable // for backwards compatibility
+        @With(AccessLevel.PRIVATE)
+        String charsetName;
+
+        boolean charsetBomMarked;
+
+        @Nullable
+        Checksum checksum;
+
+        @Override
+        public Charset getCharset() {
+            return charsetName == null ? StandardCharsets.UTF_8 : Charset.forName(charsetName);
+        }
+
+        @Override
+        public SourceFile withCharset(Charset charset) {
+            return withCharsetName(charset.name());
+        }
+
+        List<? extends Document> documents;
+
+        @Override
+        public <P> TreeVisitor<?, PrintOutputCapture<P>> printer(Cursor cursor) {
+            return new PostgresqlPrinter<>();
+        }
     }
 
 @ToString

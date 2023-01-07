@@ -34,78 +34,72 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
-//public class PostgresqlParser implements Parser<Postgresql.Document> {
-//    @Override
-//    public List<Postgresql.Document> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
-//        ParsingEventListener parsingListener = ParsingExecutionContextView.view(ctx).getParsingListener();
-//        return acceptedInputs(sourceFiles).stream()
-//                .map(sourceFile -> {
-//                    Timer.Builder timer = Timer.builder("rewrite.parse")
-//                            .description("The time spent parsing an XML file")
-//                            .tag("file.type", "XML");
-//                    Timer.Sample sample = Timer.start();
-//                    Path path = sourceFile.getRelativePath(relativeTo);
-//                    try {
-//                        EncodingDetectingInputStream is = sourceFile.getSource(ctx);
-//                        String sourceStr = is.readFully();
-//
-//                        // FIXME implement me!
-//                        Postgresql.Document document = null;
-//
-//                        sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
-//                        parsingListener.parsed(sourceFile, document);
-//                        return document;
-//                    } catch (Throwable t) {
-//                        sample.stop(MetricsHelper.errorTags(timer, t).register(Metrics.globalRegistry));
-//                        ParsingExecutionContextView.view(ctx).parseFailure(sourceFile, relativeTo, this, t);
-//                        ctx.getOnError().accept(new IllegalStateException(path + " " + t.getMessage(), t));
-//                        return null;
-//                    }
-//                })
-//                .filter(Objects::nonNull)
-//                .collect(toList());
-//    }
-//
-//    @Override
-//    public List<Postgresql.Document> parse(@Language("xml") String... sources) {
-//        return parse(new InMemoryExecutionContext(), sources);
-//    }
-//
-//    @Override
-//    public boolean accept(Path path) {
-//        String p = path.toString();
-//        return p.endsWith(".xml") ||
-//               p.endsWith(".wsdl") ||
-//               p.endsWith(".xhtml") ||
-//               p.endsWith(".xsd") ||
-//               p.endsWith(".xsl") ||
-//               p.endsWith(".xslt") ||
-//               p.endsWith(".tld");
-//    }
-//
-//    @Override
-//    public Path sourcePathFromSourceText(Path prefix, String sourceCode) {
-//        return prefix.resolve("file.xml");
-//    }
-//
-//    public static Builder builder() {
-//        return new Builder();
-//    }
-//
-//    public static class Builder extends Parser.Builder {
-//
-//        public Builder() {
-//            super(Postgresql.Document.class);
-//        }
-//
-//        @Override
-//        public PostgresqlParser build() {
-//            return new PostgresqlParser();
-//        }
-//
-//        @Override
-//        public String getDslName() {
-//            return "postgresql";
-//        }
-//    }
-//}
+public class PostgresqlParser implements Parser<Postgresql.Documents> {
+    @Override
+    public List<Postgresql.Documents> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
+        ParsingEventListener parsingListener = ParsingExecutionContextView.view(ctx).getParsingListener();
+        return acceptedInputs(sourceFiles).stream()
+                .map(sourceFile -> {
+                    Timer.Builder timer = Timer.builder("rewrite.parse")
+                            .description("The time spent parsing an SQL file")
+                            .tag("file.type", "SQL");
+                    Timer.Sample sample = Timer.start();
+                    Path path = sourceFile.getRelativePath(relativeTo);
+                    try {
+                        EncodingDetectingInputStream is = sourceFile.getSource(ctx);
+                        String sourceStr = is.readFully();
+
+                        // FIXME implement me!
+                        Postgresql.Documents documents = null; //new Postgresql.Documents();
+
+                        sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
+                        parsingListener.parsed(sourceFile, documents);
+                        return documents;
+                    } catch (Throwable t) {
+                        sample.stop(MetricsHelper.errorTags(timer, t).register(Metrics.globalRegistry));
+                        ParsingExecutionContextView.view(ctx).parseFailure(sourceFile, relativeTo, this, t);
+                        ctx.getOnError().accept(new IllegalStateException(path + " " + t.getMessage(), t));
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(toList());
+    }
+
+    @Override
+    public List<Postgresql.Documents> parse(@Language("SQL") String... sources) {
+        return parse(new InMemoryExecutionContext(), sources);
+    }
+
+    @Override
+    public boolean accept(Path path) {
+        String p = path.toString();
+        return p.endsWith(".sql");
+    }
+
+    @Override
+    public Path sourcePathFromSourceText(Path prefix, String sourceCode) {
+        return prefix.resolve("file.sql");
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder extends Parser.Builder {
+
+        public Builder() {
+            super(Postgresql.Documents.class);
+        }
+
+        @Override
+        public PostgresqlParser build() {
+            return new PostgresqlParser();
+        }
+
+        @Override
+        public String getDslName() {
+            return "postgresql";
+        }
+    }
+}
