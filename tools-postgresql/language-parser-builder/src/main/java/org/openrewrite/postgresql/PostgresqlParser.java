@@ -17,6 +17,8 @@ package org.openrewrite.postgresql;
 
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.intellij.lang.annotations.Language;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -24,6 +26,8 @@ import org.openrewrite.Parser;
 import org.openrewrite.internal.EncodingDetectingInputStream;
 import org.openrewrite.internal.MetricsHelper;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.postgresql.internal.grammar.PostgreSQLLexer;
+import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.tree.Postgresql;
 import org.openrewrite.tree.ParsingEventListener;
 import org.openrewrite.tree.ParsingExecutionContextView;
@@ -34,10 +38,9 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
-//TODO use https://github.com/antlr/grammars-v4/commits/master/sql/postgresql
-public class PostgresqlParser implements Parser<Postgresql.Documents> {
+public class PostgresqlParser implements Parser<Postgresql.Document> {
     @Override
-    public List<Postgresql.Documents> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
+    public List<Postgresql.Document> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
         ParsingEventListener parsingListener = ParsingExecutionContextView.view(ctx).getParsingListener();
         return acceptedInputs(sourceFiles).stream()
                 .map(sourceFile -> {
@@ -50,12 +53,14 @@ public class PostgresqlParser implements Parser<Postgresql.Documents> {
                         EncodingDetectingInputStream is = sourceFile.getSource(ctx);
                         String sourceStr = is.readFully();
 
-                        // FIXME implement me!
-                        Postgresql.Documents documents = null; //new Postgresql.Documents();
+                        PostgreSQLParser parser = new PostgreSQLParser(new CommonTokenStream(new PostgreSQLLexer(
+                                CharStreams.fromString(sourceStr))));
+
+                        Postgresql.Document document = null; //TODO
 
                         sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
-                        parsingListener.parsed(sourceFile, documents);
-                        return documents;
+                        parsingListener.parsed(sourceFile, document);
+                        return document;
                     } catch (Throwable t) {
                         sample.stop(MetricsHelper.errorTags(timer, t).register(Metrics.globalRegistry));
                         ParsingExecutionContextView.view(ctx).parseFailure(sourceFile, relativeTo, this, t);
@@ -68,7 +73,7 @@ public class PostgresqlParser implements Parser<Postgresql.Documents> {
     }
 
     @Override
-    public List<Postgresql.Documents> parse(@Language("sql") String... sources) {
+    public List<Postgresql.Document> parse(@Language("sql") String... sources) {
         return parse(new InMemoryExecutionContext(), sources);
     }
 
@@ -90,7 +95,7 @@ public class PostgresqlParser implements Parser<Postgresql.Documents> {
     public static class Builder extends Parser.Builder {
 
         public Builder() {
-            super(Postgresql.Documents.class);
+            super(Postgresql.Document.class);
         }
 
         @Override

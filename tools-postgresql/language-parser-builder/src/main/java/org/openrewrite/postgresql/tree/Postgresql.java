@@ -22,11 +22,9 @@ import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.PostgresqlVisitor;
-import org.openrewrite.postgresql.internal.PostgresqlPrinter;
 
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
@@ -53,52 +51,12 @@ public interface Postgresql extends Tree {
         return Space.EMPTY;
     }
 
-    @Value
-    @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
-    @With
-    class Documents implements Postgresql, SourceFile {
-        @EqualsAndHashCode.Include
-        UUID id;
-
-        Markers markers;
-        Path sourcePath;
-
-        @Nullable
-        FileAttributes fileAttributes;
-
-        @Nullable // for backwards compatibility
-        @With(AccessLevel.PRIVATE)
-        String charsetName;
-
-        boolean charsetBomMarked;
-
-        @Nullable
-        Checksum checksum;
-
-        @Override
-        public Charset getCharset() {
-            return charsetName == null ? StandardCharsets.UTF_8 : Charset.forName(charsetName);
-        }
-
-        @Override
-        public SourceFile withCharset(Charset charset) {
-            return withCharsetName(charset.name());
-        }
-
-        List<? extends Document> documents;
-
-        @Override
-        public <P> TreeVisitor<?, PrintOutputCapture<P>> printer(Cursor cursor) {
-            return new PostgresqlPrinter<>();
-        }
-    }
-
     @ToString
     @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
     @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
     @RequiredArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    class Document implements Postgresql {
+    class Document implements Postgresql, SourceFile {
         @Nullable
         @NonFinal
         transient WeakReference<Padding> padding;
@@ -123,6 +81,20 @@ public interface Postgresql extends Tree {
         @Getter
         @With
         Charset charset;
+
+        @Getter
+        @With
+        boolean charsetBomMarked;
+
+        @Getter
+        @With
+        @Nullable
+        FileAttributes fileAttributes;
+
+        @Getter
+        @With
+        @Nullable
+        Checksum checksum;
 
         PostgresqlContainer<Expression> expressions;
 
@@ -164,7 +136,7 @@ public interface Postgresql extends Tree {
             }
 
             public Document withExpressions(PostgresqlContainer<Expression> expressions) {
-                return t.expressions == expressions ? t : new Document(t.padding, t.id, t.prefix, t.markers, t.sourcePath, t.charset, expressions);
+                return t.expressions == expressions ? t : new Document(t.padding, t.id, t.prefix, t.markers, t.sourcePath, t.charset, t.charsetBomMarked, t.fileAttributes, t.checksum, expressions);
             }
         }
     }

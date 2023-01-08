@@ -32,8 +32,8 @@ public class Assertions {
         });
     }
 
-    public static SourceSpecs postgresql(@Language("sql") @Nullable String before, Consumer<SourceSpec<Postgresql.Documents>> spec) {
-        SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, null);
+    public static SourceSpecs postgresql(@Language("sql") @Nullable String before, Consumer<SourceSpec<Postgresql.Document>> spec) {
+        SourceSpec<Postgresql.Document> doc = new SourceSpec<>(Postgresql.Document.class, null, PostgresqlParser.builder(), before, null);
         spec.accept(doc);
         return doc;
     }
@@ -44,8 +44,8 @@ public class Assertions {
     }
 
     public static SourceSpecs postgresql(@Language("sql") @Nullable String before, @Language("sql") @Nullable String after,
-                                         Consumer<SourceSpec<Postgresql.Documents>> spec) {
-        SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, s -> after);
+                                         Consumer<SourceSpec<Postgresql.Document>> spec) {
+        SourceSpec<Postgresql.Document> doc = new SourceSpec<>(Postgresql.Document.class, null, PostgresqlParser.builder(), before, s -> after);
         spec.accept(doc);
         return doc;
     }
