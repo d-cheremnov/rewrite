@@ -34,6 +34,7 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
+//TODO use https://github.com/antlr/grammars-v4/commits/master/sql/postgresql
 public class PostgresqlParser implements Parser<Postgresql.Documents> {
     @Override
     public List<Postgresql.Documents> parseInputs(Iterable<Input> sourceFiles, @Nullable Path relativeTo, ExecutionContext ctx) {
@@ -67,7 +68,7 @@ public class PostgresqlParser implements Parser<Postgresql.Documents> {
     }
 
     @Override
-    public List<Postgresql.Documents> parse(@Language("SQL") String... sources) {
+    public List<Postgresql.Documents> parse(@Language("sql") String... sources) {
         return parse(new InMemoryExecutionContext(), sources);
     }
 
@@ -99,7 +100,7 @@ public class PostgresqlParser implements Parser<Postgresql.Documents> {
 
         @Override
         public String getDslName() {
-            return "postgresql";
+            return "sql";
         }
     }
 }

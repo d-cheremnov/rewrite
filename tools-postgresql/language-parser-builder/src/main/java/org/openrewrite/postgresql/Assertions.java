@@ -27,23 +27,23 @@ public class Assertions {
     private Assertions() {
     }
 
-    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before) {
+    public static SourceSpecs postgresql(@Language("sql") @Nullable String before) {
         return Assertions.postgresql(before, s -> {
         });
     }
 
-    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, Consumer<SourceSpec<Postgresql.Documents>> spec) {
+    public static SourceSpecs postgresql(@Language("sql") @Nullable String before, Consumer<SourceSpec<Postgresql.Documents>> spec) {
         SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, null);
         spec.accept(doc);
         return doc;
     }
 
-    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, @Language("SQL") @Nullable String after) {
+    public static SourceSpecs postgresql(@Language("sql") @Nullable String before, @Language("sql") @Nullable String after) {
         return postgresql(before, after, s -> {
         });
     }
 
-    public static SourceSpecs postgresql(@Language("SQL") @Nullable String before, @Language("SQL") @Nullable String after,
+    public static SourceSpecs postgresql(@Language("sql") @Nullable String before, @Language("sql") @Nullable String after,
                                          Consumer<SourceSpec<Postgresql.Documents>> spec) {
         SourceSpec<Postgresql.Documents> doc = new SourceSpec<>(Postgresql.Documents.class, null, PostgresqlParser.builder(), before, s -> after);
         spec.accept(doc);
