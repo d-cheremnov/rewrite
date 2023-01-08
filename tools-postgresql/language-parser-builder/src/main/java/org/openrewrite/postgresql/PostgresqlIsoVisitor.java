@@ -15,49 +15,9 @@
  */
 package org.openrewrite.postgresql;
 
-import org.openrewrite.FileAttributes;
-import org.openrewrite.internal.lang.Nullable;
-import org.openrewrite.marker.Markers;
-import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.tree.Postgresql;
-import org.openrewrite.postgresql.tree.Space;
-
-import java.nio.charset.Charset;
-import java.nio.file.Path;
-
-import static org.openrewrite.Tree.randomId;
 
 public class PostgresqlIsoVisitor<P> extends PostgresqlVisitor<P> {
-
-    private final Path path;
-
-    @Nullable
-    private final FileAttributes fileAttributes;
-    private final String source;
-    private final Charset charset;
-    private final boolean charsetBomMarked;
-
-    public PostgresqlIsoVisitor(Path path, @Nullable FileAttributes fileAttributes, String source, Charset charset, boolean charsetBomMarked) {
-        this.path = path;
-        this.fileAttributes = fileAttributes;
-        this.source = source;
-        this.charset = charset;
-        this.charsetBomMarked = charsetBomMarked;
-    }
-
-    public Postgresql.Document visitDocument(PostgreSQLParser.Document_or_contentContext ctx, P p) {
-        return new Postgresql.Document(
-                randomId(),
-                Space.EMPTY,
-                Markers.EMPTY,
-                path,
-                charset,
-                charsetBomMarked,
-                fileAttributes,
-                null,
-                null
-        );
-    }
 
     @Override
     public Postgresql.Document visitDocument(Postgresql.Document document, P p) {

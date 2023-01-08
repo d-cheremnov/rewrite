@@ -17,8 +17,7 @@ package org.openrewrite.postgresql;
 
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Timer;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.*;
 import org.intellij.lang.annotations.Language;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
@@ -56,7 +55,11 @@ public class PostgresqlParser implements Parser<Postgresql.Document> {
                         PostgreSQLParser parser = new PostgreSQLParser(new CommonTokenStream(new PostgreSQLLexer(
                                 CharStreams.fromString(sourceStr))));
 
-                        PostgresqlIsoVisitor<Void> parserVisitor = new PostgresqlIsoVisitor(
+                        parser.removeErrorListeners();
+                        parser.addErrorListener(new ForwardingErrorListener(sourceFile.getPath(), ctx));
+
+/*
+                        PostgresqlVisitor<Void> parserVisitor = new PostgresqlVisitor(
                                 path,
                                 sourceFile.getFileAttributes(),
                                 sourceStr,
@@ -64,7 +67,9 @@ public class PostgresqlParser implements Parser<Postgresql.Document> {
                                 is.isCharsetBomMarked()
                         );
                         Postgresql.Document document = parserVisitor.visitDocument(parser.document_or_content(), null);
+ */
 
+                        Postgresql.Document document = null; //
                         sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
                         parsingListener.parsed(sourceFile, document);
                         return document;
@@ -93,6 +98,23 @@ public class PostgresqlParser implements Parser<Postgresql.Document> {
     @Override
     public Path sourcePathFromSourceText(Path prefix, String sourceCode) {
         return prefix.resolve("file.sql");
+    }
+
+    private static class ForwardingErrorListener extends BaseErrorListener {
+        private final Path sourcePath;
+        private final ExecutionContext ctx;
+
+        private ForwardingErrorListener(Path sourcePath, ExecutionContext ctx) {
+            this.sourcePath = sourcePath;
+            this.ctx = ctx;
+        }
+
+        @Override
+        public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
+                                int line, int charPositionInLine, String msg, RecognitionException e) {
+            ctx.getOnError().accept(new PostgresqlParsingException(sourcePath,
+                    String.format("Syntax error in %s at line %d:%d %s.", sourcePath, line, charPositionInLine, msg), e));
+        }
     }
 
     public static Builder builder() {
