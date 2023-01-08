@@ -25,6 +25,9 @@ dependencies {
     compileOnly("org.openrewrite:rewrite-test")
     implementation("org.openrewrite:rewrite-java-17")
 
+    implementation("org.antlr:antlr4:4.11.+")
+    implementation("io.micrometer:micrometer-core:1.9.+")
+
     implementation(platform("org.openrewrite.recipe:rewrite-recipe-bom:latest.release"))
     modelAnnotationProcessor("org.projectlombok:lombok:latest.release")
     modelCompileOnly("org.projectlombok:lombok:latest.release")
