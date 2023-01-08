@@ -22,8 +22,9 @@ configurations["modelRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
 dependencies {
     compileOnly("org.projectlombok:lombok:latest.release")
-    compileOnly("org.openrewrite:rewrite-test")
     implementation("org.openrewrite:rewrite-java-17")
+    testImplementation("org.openrewrite:rewrite-test")
+    testImplementation("org.assertj:assertj-core:last")
 
     implementation("org.antlr:antlr4:4.11.+")
     implementation("io.micrometer:micrometer-core:1.9.+")

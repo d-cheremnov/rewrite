@@ -22,6 +22,7 @@ import org.openrewrite.*;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.PostgresqlVisitor;
+import org.openrewrite.postgresql.internal.PostgresqlPrinter;
 
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
@@ -138,6 +139,11 @@ public interface Postgresql extends Tree {
             public Document withExpressions(PostgresqlContainer<Expression> expressions) {
                 return t.expressions == expressions ? t : new Document(t.padding, t.id, t.prefix, t.markers, t.sourcePath, t.charset, t.charsetBomMarked, t.fileAttributes, t.checksum, expressions);
             }
+        }
+
+        @Override
+        public <P> TreeVisitor<?, PrintOutputCapture<P>> printer(Cursor cursor) {
+            return new PostgresqlPrinter<>();
         }
     }
 
