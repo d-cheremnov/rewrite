@@ -56,7 +56,14 @@ public class PostgresqlParser implements Parser<Postgresql.Document> {
                         PostgreSQLParser parser = new PostgreSQLParser(new CommonTokenStream(new PostgreSQLLexer(
                                 CharStreams.fromString(sourceStr))));
 
-                        Postgresql.Document document = null; //TODO
+                        PostgresqlIsoVisitor<Void> parserVisitor = new PostgresqlIsoVisitor(
+                                path,
+                                sourceFile.getFileAttributes(),
+                                sourceStr,
+                                is.getCharset(),
+                                is.isCharsetBomMarked()
+                        );
+                        Postgresql.Document document = parserVisitor.visitDocument(parser.document_or_content(), null);
 
                         sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
                         parsingListener.parsed(sourceFile, document);
