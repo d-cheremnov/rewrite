@@ -11,7 +11,6 @@ class PostgresqlParserTest implements RewriteTest {
     void parsePostgresqlDocument() {
         rewriteRun(
                 postgresql(
-                        "CREATE TABLE hobbies_r (name		text, person 		text);",
                         "CREATE TABLE hobbies_r (name		text, person 		text);"
                 )
         );
