@@ -17,16 +17,14 @@ package org.openrewrite.postgresql.internal;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.openrewrite.FileAttributes;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParserBaseVisitor;
-import org.openrewrite.postgresql.tree.Postgresql;
-import org.openrewrite.postgresql.tree.PostgresqlContainer;
-import org.openrewrite.postgresql.tree.PostgresqlRightPadded;
-import org.openrewrite.postgresql.tree.Space;
+import org.openrewrite.postgresql.tree.*;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -36,7 +34,7 @@ import java.util.function.BiFunction;
 
 import static org.openrewrite.Tree.randomId;
 
-public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgresql> {
+public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Expression> {
     private final Path path;
 
     @Nullable
@@ -63,12 +61,13 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
 
     public Postgresql.Document visitDocument(PostgreSQLParser.RootContext ctx) {
         Space bodyPrefix = sourceBefore(";");
-        List<PostgresqlRightPadded<Postgresql>> list = new ArrayList<>();
+        List<PostgresqlRightPadded<Expression>> list = new ArrayList<>();
         // The first element is the syntax, which we've already parsed
         // The last element is a "TerminalNode" which we are uninterested in
         for (int i = 1; i < ctx.children.size() - 1; i++) {
-            Postgresql s = visit(ctx.children.get(i));
-            PostgresqlRightPadded<Postgresql> protoProtoRightPadded = PostgresqlRightPadded.build(s).withAfter(
+            ParseTree parseTree = ctx.children.get(i);
+            Expression s = visit(parseTree);
+            PostgresqlRightPadded<Expression> protoProtoRightPadded = PostgresqlRightPadded.build(s).withAfter(
                     (s instanceof Postgresql.Document ||
                             s instanceof Postgresql.KeyValue ||
                             s instanceof Postgresql.BareKey ||
@@ -79,7 +78,7 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
             );
             list.add(protoProtoRightPadded);
         }
-        PostgresqlContainer<Postgresql> container = PostgresqlContainer.build(bodyPrefix, list, Markers.EMPTY);
+        PostgresqlContainer<Expression> container = PostgresqlContainer.build(bodyPrefix, list, Markers.EMPTY);
 
         return new Postgresql.Document(
                 randomId(),
