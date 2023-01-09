@@ -25,6 +25,7 @@ import org.openrewrite.Parser;
 import org.openrewrite.internal.EncodingDetectingInputStream;
 import org.openrewrite.internal.MetricsHelper;
 import org.openrewrite.internal.lang.Nullable;
+import org.openrewrite.postgresql.internal.PostgresqlParserVisitor;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLLexer;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.tree.Postgresql;
@@ -58,18 +59,15 @@ public class PostgresqlParser implements Parser<Postgresql.Document> {
                         parser.removeErrorListeners();
                         parser.addErrorListener(new ForwardingErrorListener(sourceFile.getPath(), ctx));
 
-/*
-                        PostgresqlVisitor<Void> parserVisitor = new PostgresqlVisitor(
+                        PostgresqlParserVisitor parserVisitor = new PostgresqlParserVisitor(
                                 path,
                                 sourceFile.getFileAttributes(),
                                 sourceStr,
                                 is.getCharset(),
                                 is.isCharsetBomMarked()
                         );
-                        Postgresql.Document document = parserVisitor.visitDocument(parser.document_or_content(), null);
- */
+                        Postgresql.Document document = parserVisitor.visitDocument(parser.root());
 
-                        Postgresql.Document document = null; //
                         sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
                         parsingListener.parsed(sourceFile, document);
                         return document;
