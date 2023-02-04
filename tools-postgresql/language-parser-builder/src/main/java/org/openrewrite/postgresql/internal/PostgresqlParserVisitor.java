@@ -59,7 +59,8 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
         this.charsetBomMarked = charsetBomMarked;
     }
 
-    public Postgresql.Document visitDocument(PostgreSQLParser.RootContext ctx) {
+    @Override
+    public Postgresql.Document visitRoot(PostgreSQLParser.RootContext ctx) {
         List<PostgresqlRightPadded<Postgresql>> list = new ArrayList<>();
         // The first element is the syntax, which we've already parsed
         // The last element is a "TerminalNode" which we are uninterested in
@@ -78,19 +79,18 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
         }
         PostgresqlContainer<Postgresql> expressions = PostgresqlContainer.build(Space.EMPTY, list, Markers.EMPTY);
 
-        return new Postgresql.Document(
+        return convert(ctx, (c, prefix) -> new Postgresql.Document(
                 randomId(),
-                Space.EMPTY,
+                prefix,
                 Markers.EMPTY,
                 path,
                 charset,
                 charsetBomMarked,
                 fileAttributes,
                 null,
-                expressions
+                expressions)
         );
     }
-
 
     /**
      * Root call!

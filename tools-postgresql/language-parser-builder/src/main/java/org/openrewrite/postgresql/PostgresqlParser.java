@@ -66,7 +66,7 @@ public class PostgresqlParser implements Parser<Postgresql.Document> {
                                 is.getCharset(),
                                 is.isCharsetBomMarked()
                         );
-                        Postgresql.Document document = parserVisitor.visitDocument(parser.root());
+                        Postgresql.Document document = parserVisitor.visitRoot(parser.root());
 
                         sample.stop(MetricsHelper.successTags(timer).register(Metrics.globalRegistry));
                         parsingListener.parsed(sourceFile, document);
