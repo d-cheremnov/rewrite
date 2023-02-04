@@ -23,10 +23,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParserBaseVisitor;
-import org.openrewrite.postgresql.tree.Postgresql;
-import org.openrewrite.postgresql.tree.PostgresqlContainer;
-import org.openrewrite.postgresql.tree.PostgresqlRightPadded;
-import org.openrewrite.postgresql.tree.Space;
+import org.openrewrite.postgresql.tree.*;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -75,7 +72,7 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
                             s instanceof Postgresql.DottedKey ||
                             s instanceof Postgresql.LiteralString ||
                             s instanceof Postgresql.Array
-                    ) ? sourceBefore(";") : Space.EMPTY
+                    ) ? Space.EMPTY /*sourceBefore(";")*/ : Space.EMPTY
             );
             list.add(protoProtoRightPadded);
         }
@@ -94,34 +91,34 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
         );
     }
 
-/*
-    @Override
-    public Postgresql visitStmt(PostgreSQLParser.StmtContext ctx) {
-        String text = ctx.getText();
-        //PostgreSQLParser.CreatestmtContext createstmt = ctx.createstmt();
-        return new Postgresql.LiteralString(randomId(), Space.EMPTY, Markers.EMPTY, text, text);
-    }
-
     @Override
     protected Postgresql defaultResult() {
         PostgresqlContainer<TValue> container = PostgresqlContainer.empty();
         return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, container);
     }
 
+
     @Override
     protected Postgresql aggregateResult(Postgresql aggregate, Postgresql nextResult) {
-        Postgresql.Array array = (Postgresql.Array) aggregate;
-        TValue value = nextResult.cast();
-        array.getValues().add(value);
+        Postgresql.Array aggregateArray = (Postgresql.Array) aggregate;
+        if (nextResult instanceof Postgresql.Array) {
+            Postgresql.Array nextResultArray = (Postgresql.Array) nextResult;
+            nextResultArray.getValues().stream().forEach(value -> aggregateArray.getValues().add(value));
+        } else if (nextResult instanceof Postgresql.LiteralString) {
+            aggregateArray.getValues().add(nextResult.cast());
+        }
         return aggregate;
     }
 
     @Override
-    public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
-
-        return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, null);
+    public Postgresql visitStmt(PostgreSQLParser.StmtContext ctx) {
+        return visitChildren(ctx);
     }
-*/
+
+    @Override
+    public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
+        return visitChildren(ctx);
+    }
 
     private Space prefix(ParserRuleContext ctx) {
         return prefix(ctx.getStart());
