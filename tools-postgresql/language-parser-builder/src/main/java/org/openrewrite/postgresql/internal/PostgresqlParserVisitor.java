@@ -17,14 +17,16 @@ package org.openrewrite.postgresql.internal;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.openrewrite.FileAttributes;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParserBaseVisitor;
-import org.openrewrite.postgresql.tree.*;
+import org.openrewrite.postgresql.tree.Postgresql;
+import org.openrewrite.postgresql.tree.PostgresqlContainer;
+import org.openrewrite.postgresql.tree.PostgresqlRightPadded;
+import org.openrewrite.postgresql.tree.Space;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -92,41 +94,35 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
         );
     }
 
-    /**
-     * Root call!
-     *
-     * @Override public Postgresql.LiteralString visitStmt(PostgreSQLParser.StmtContext ctx) {
-     * String text = ctx.getText();
-     * PostgreSQLParser.CreatestmtContext createstmt = ctx.createstmt();
-     * return new Postgresql.LiteralString(randomId(), Space.EMPTY, Markers.EMPTY, text, text);
-     * }
-     */
 /*
     @Override
-    protected Postgresql.Array defaultResult() {
+    public Postgresql visitStmt(PostgreSQLParser.StmtContext ctx) {
+        String text = ctx.getText();
+        //PostgreSQLParser.CreatestmtContext createstmt = ctx.createstmt();
+        return new Postgresql.LiteralString(randomId(), Space.EMPTY, Markers.EMPTY, text, text);
+    }
+
+    @Override
+    protected Postgresql defaultResult() {
         PostgresqlContainer<TValue> container = PostgresqlContainer.empty();
         return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, container);
     }
 
     @Override
-    protected Postgresql.Array aggregateResult(Postgresql.Array aggregate, Postgresql nextResult) {
-        aggregate.(nextResult);
+    protected Postgresql aggregateResult(Postgresql aggregate, Postgresql nextResult) {
+        Postgresql.Array array = (Postgresql.Array) aggregate;
+        TValue value = nextResult.cast();
+        array.getValues().add(value);
         return aggregate;
     }
 
     @Override
-    public Postgresql.Array visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
-        List<PostgresqlRightPadded<Postgresql>> list = new ArrayList<>();
-        for (int i = 0; i < ctx.children.size() - 1; i++) {
-            ParseTree parseTree = ctx.children.get(i);
-            Postgresql expression = visit(parseTree);
-            PostgresqlRightPadded<Postgresql> protoProtoRightPadded = PostgresqlRightPadded.build(expression);
-            list.add(protoProtoRightPadded);
-        }
-        PostgresqlContainer<Postgresql> expressions = PostgresqlContainer.build(Space.EMPTY, list, Markers.EMPTY);
-        return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, expressions);
+    public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
+
+        return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, null);
     }
 */
+
     private Space prefix(ParserRuleContext ctx) {
         return prefix(ctx.getStart());
     }
