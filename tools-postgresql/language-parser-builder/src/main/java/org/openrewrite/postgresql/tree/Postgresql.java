@@ -97,18 +97,18 @@ public interface Postgresql extends Tree {
         @Nullable
         Checksum checksum;
 
-        PostgresqlContainer<Expression> expressions;
+        PostgresqlContainer<Postgresql> expressions;
 
         @Override
         public <P> Postgresql acceptPostgresql(PostgresqlVisitor<P> v, P p) {
             return v.visitDocument(this, p);
         }
 
-        public List<Expression> getExpressions() {
+        public List<Postgresql> getExpressions() {
             return expressions.getElements();
         }
 
-        public Document withExpressions(List<Expression> expressions) {
+        public Document withExpressions(List<Postgresql> expressions) {
             return getPadding().withExpressions(this.expressions.getPadding().withElements(PostgresqlRightPadded.withElements(
                     this.expressions.getPadding().getElements(), expressions)));
         }
@@ -132,11 +132,11 @@ public interface Postgresql extends Tree {
         public static class Padding {
             private final Document t;
 
-            public PostgresqlContainer<Expression> getExpressions() {
+            public PostgresqlContainer<Postgresql> getExpressions() {
                 return t.expressions;
             }
 
-            public Document withExpressions(PostgresqlContainer<Expression> expressions) {
+            public Document withExpressions(PostgresqlContainer<Postgresql> expressions) {
                 return t.expressions == expressions ? t : new Document(t.padding, t.id, t.prefix, t.markers, t.sourcePath, t.charset, t.charsetBomMarked, t.fileAttributes, t.checksum, expressions);
             }
         }

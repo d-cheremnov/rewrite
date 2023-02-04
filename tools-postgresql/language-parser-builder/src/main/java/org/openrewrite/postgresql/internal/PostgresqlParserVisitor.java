@@ -24,7 +24,10 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParserBaseVisitor;
-import org.openrewrite.postgresql.tree.*;
+import org.openrewrite.postgresql.tree.Postgresql;
+import org.openrewrite.postgresql.tree.PostgresqlContainer;
+import org.openrewrite.postgresql.tree.PostgresqlRightPadded;
+import org.openrewrite.postgresql.tree.Space;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -34,7 +37,7 @@ import java.util.function.BiFunction;
 
 import static org.openrewrite.Tree.randomId;
 
-public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Expression> {
+public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgresql> {
     private final Path path;
 
     @Nullable
@@ -60,16 +63,16 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Express
     }
 
     public Postgresql.Document visitDocument(PostgreSQLParser.RootContext ctx) {
-        List<PostgresqlRightPadded<Expression>> list = new ArrayList<>();
+        List<PostgresqlRightPadded<Postgresql>> list = new ArrayList<>();
         // The first element is the syntax, which we've already parsed
         // The last element is a "TerminalNode" which we are uninterested in
-        for (int i = 1; i < ctx.children.size() - 1; i++) {
+        for (int i = 0; i < ctx.children.size() - 1; i++) {
             ParseTree parseTree = ctx.children.get(i);
-            Expression s = visit(parseTree);
-            PostgresqlRightPadded<Expression> protoProtoRightPadded = PostgresqlRightPadded.build(s);
+            Postgresql expression = visit(parseTree);
+            PostgresqlRightPadded<Postgresql> protoProtoRightPadded = PostgresqlRightPadded.build(expression);
             list.add(protoProtoRightPadded);
         }
-        PostgresqlContainer<Expression> expressions = PostgresqlContainer.build(Space.EMPTY, list, Markers.EMPTY);
+        PostgresqlContainer<Postgresql> expressions = PostgresqlContainer.build(Space.EMPTY, list, Markers.EMPTY);
 
         return new Postgresql.Document(
                 randomId(),
@@ -84,6 +87,42 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Express
         );
     }
 
+
+    /**
+     * Root call!
+     *
+     * @Override public Postgresql.LiteralString visitStmt(PostgreSQLParser.StmtContext ctx) {
+     * String text = ctx.getText();
+     * PostgreSQLParser.CreatestmtContext createstmt = ctx.createstmt();
+     * return new Postgresql.LiteralString(randomId(), Space.EMPTY, Markers.EMPTY, text, text);
+     * }
+     */
+/*
+    @Override
+    protected Postgresql.Array defaultResult() {
+        PostgresqlContainer<TValue> container = PostgresqlContainer.empty();
+        return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, container);
+    }
+
+    @Override
+    protected Postgresql.Array aggregateResult(Postgresql.Array aggregate, Postgresql nextResult) {
+        aggregate.(nextResult);
+        return aggregate;
+    }
+
+    @Override
+    public Postgresql.Array visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
+        List<PostgresqlRightPadded<Postgresql>> list = new ArrayList<>();
+        for (int i = 0; i < ctx.children.size() - 1; i++) {
+            ParseTree parseTree = ctx.children.get(i);
+            Postgresql expression = visit(parseTree);
+            PostgresqlRightPadded<Postgresql> protoProtoRightPadded = PostgresqlRightPadded.build(expression);
+            list.add(protoProtoRightPadded);
+        }
+        PostgresqlContainer<Postgresql> expressions = PostgresqlContainer.build(Space.EMPTY, list, Markers.EMPTY);
+        return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, expressions);
+    }
+*/
     private Space prefix(ParserRuleContext ctx) {
         return prefix(ctx.getStart());
     }
