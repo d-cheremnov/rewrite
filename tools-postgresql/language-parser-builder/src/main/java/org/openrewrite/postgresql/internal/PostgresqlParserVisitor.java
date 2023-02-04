@@ -24,10 +24,7 @@ import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParserBaseVisitor;
-import org.openrewrite.postgresql.tree.Postgresql;
-import org.openrewrite.postgresql.tree.PostgresqlContainer;
-import org.openrewrite.postgresql.tree.PostgresqlRightPadded;
-import org.openrewrite.postgresql.tree.Space;
+import org.openrewrite.postgresql.tree.*;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -67,9 +64,16 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
         // The first element is the syntax, which we've already parsed
         // The last element is a "TerminalNode" which we are uninterested in
         for (int i = 0; i < ctx.children.size() - 1; i++) {
-            ParseTree parseTree = ctx.children.get(i);
-            Postgresql expression = visit(parseTree);
-            PostgresqlRightPadded<Postgresql> protoProtoRightPadded = PostgresqlRightPadded.build(expression);
+            Postgresql s = visit(ctx.children.get(i));
+            PostgresqlRightPadded<Postgresql> protoProtoRightPadded = PostgresqlRightPadded.build(s).withAfter(
+                    (s instanceof Postgresql.Document ||
+                            s instanceof Postgresql.KeyValue ||
+                            s instanceof Postgresql.BareKey ||
+                            s instanceof Postgresql.DottedKey ||
+                            s instanceof Postgresql.LiteralString ||
+                            s instanceof Postgresql.Array
+                    ) ? sourceBefore(";") : Space.EMPTY
+            );
             list.add(protoProtoRightPadded);
         }
         PostgresqlContainer<Postgresql> expressions = PostgresqlContainer.build(Space.EMPTY, list, Markers.EMPTY);
