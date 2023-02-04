@@ -15,12 +15,16 @@
  */
 package org.openrewrite.postgresql.internal;
 
+import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import org.openrewrite.FileAttributes;
 import org.openrewrite.internal.lang.Nullable;
 import org.openrewrite.marker.Markers;
+import org.openrewrite.postgresql.internal.grammar.PostgreSQLLexer;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParser;
 import org.openrewrite.postgresql.internal.grammar.PostgreSQLParserBaseVisitor;
 import org.openrewrite.postgresql.tree.*;
@@ -117,7 +121,35 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
 
     @Override
     public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
+        if (checkTerminalNode(ctx.getChild(0), PostgreSQLLexer.CREATE)
+                && checkTerminalNode(ctx.getChild(2), PostgreSQLLexer.TABLE)
+                && !checkTerminalNode(ctx.getChild(3), PostgreSQLLexer.IF_P)
+                && !checkTerminalNode(ctx.getChild(4), PostgreSQLLexer.NOT)
+                && !checkTerminalNode(ctx.getChild(5), PostgreSQLLexer.EXISTS)) {
+            List<ParseTree> children = ctx.children;
+            addIfNotExists(children);
+        }
         return visitChildren(ctx);
+    }
+
+    private void addIfNotExists(List<ParseTree> children) {
+        TerminalNode ifTerminalNode = createTerminalNode(PostgreSQLLexer.IF_P, "IF");
+        children.add(3, ifTerminalNode);
+        TerminalNode notTerminalNode = createTerminalNode(PostgreSQLLexer.NOT, "NOT");
+        children.add(4, notTerminalNode);
+        TerminalNode existsTerminalNode = createTerminalNode(PostgreSQLLexer.EXISTS, "EXISTS");
+        children.add(5, existsTerminalNode);
+        System.out.println("Ura!!");
+    }
+
+    private boolean checkTerminalNode(ParseTree element, int symbolType) {
+        return element instanceof TerminalNode terminalNode
+                && terminalNode.getSymbol().getType() == symbolType;
+    }
+
+    private TerminalNode createTerminalNode(int type, String text) {
+        Token token = new CommonToken(type, text);
+        return new TerminalNodeImpl(token);
     }
 
     private Space prefix(ParserRuleContext ctx) {
