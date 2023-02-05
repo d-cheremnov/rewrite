@@ -104,9 +104,8 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
 
     @Override
     protected Postgresql aggregateResult(Postgresql aggregate, Postgresql nextResult) {
-        Postgresql.Array aggregateArray = (Postgresql.Array) aggregate;
-        if (nextResult instanceof Postgresql.Array) {
-            Postgresql.Array nextResultArray = (Postgresql.Array) nextResult;
+        Postgresql.Array aggregateArray = aggregate.cast();
+        if (nextResult instanceof Postgresql.Array nextResultArray) {
             nextResultArray.getValues().stream().forEach(value -> aggregateArray.getValues().add(value));
         } else if (nextResult instanceof Postgresql.LiteralString) {
             aggregateArray.getValues().add(nextResult.cast());
@@ -116,19 +115,24 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
 
     @Override
     public Postgresql visitStmt(PostgreSQLParser.StmtContext ctx) {
-        return visitChildren(ctx);
+        Postgresql postgresql = visitChildren(ctx);
+        return postgresql;
     }
 
     @Override
     public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
-        if (checkTerminalNode(ctx.getChild(0), PostgreSQLLexer.CREATE)
-                && checkTerminalNode(ctx.getChild(2), PostgreSQLLexer.TABLE)
-                && !checkTerminalNode(ctx.getChild(3), PostgreSQLLexer.IF_P)
-                && !checkTerminalNode(ctx.getChild(4), PostgreSQLLexer.NOT)
-                && !checkTerminalNode(ctx.getChild(5), PostgreSQLLexer.EXISTS)) {
+        if (isCreateTableWithoutIfNotExists(ctx)) {
             addIfNotExists(ctx.children, 3);
         }
         return visitChildren(ctx);
+    }
+
+    private boolean isCreateTableWithoutIfNotExists(PostgreSQLParser.CreatestmtContext ctx) {
+        return checkTerminalNode(ctx.getChild(0), PostgreSQLLexer.CREATE)
+                && checkTerminalNode(ctx.getChild(2), PostgreSQLLexer.TABLE)
+                && !checkTerminalNode(ctx.getChild(3), PostgreSQLLexer.IF_P)
+                && !checkTerminalNode(ctx.getChild(4), PostgreSQLLexer.NOT)
+                && !checkTerminalNode(ctx.getChild(5), PostgreSQLLexer.EXISTS);
     }
 
     private void addIfNotExists(List<ParseTree> children, int startIndex) {
@@ -138,7 +142,6 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
         children.add(startIndex + 1, notTerminalNode);
         TerminalNode existsTerminalNode = createTerminalNode(PostgreSQLLexer.EXISTS);
         children.add(startIndex + 2, existsTerminalNode);
-        System.out.println("Ura!!");
     }
 
     private boolean checkTerminalNode(ParseTree element, int tokenType) {

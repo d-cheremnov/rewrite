@@ -8,6 +8,16 @@ import static org.openrewrite.postgresql.Assertions.postgresql;
 class PostgresqlParserTest implements RewriteTest {
 
     @Test
+    void parsePostgresqlDocument0() {
+        rewriteRun(
+                postgresql(
+                        "CREATE TABLE hobbies_r (full_name		text, person 		text);",
+                        "CREATE TABLE IF NOT EXISTS hobbies_r (full_name		text, person 		text);"
+                )
+        );
+    }
+
+    @Test
     void parsePostgresqlDocument1() {
         rewriteRun(
                 postgresql(
