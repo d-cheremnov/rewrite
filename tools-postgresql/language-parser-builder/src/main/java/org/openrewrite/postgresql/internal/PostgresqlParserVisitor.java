@@ -96,7 +96,7 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
     }
 
     @Override
-    protected Postgresql defaultResult() {
+    protected Postgresql.Array defaultResult() {
         PostgresqlContainer<TValue> container = PostgresqlContainer.empty();
         return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, container);
     }
@@ -106,9 +106,13 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
     protected Postgresql aggregateResult(Postgresql aggregate, Postgresql nextResult) {
         Postgresql.Array aggregateArray = aggregate.cast();
         if (nextResult instanceof Postgresql.Array nextResultArray) {
-            nextResultArray.getValues().stream().forEach(value -> aggregateArray.getValues().add(value));
+            List<TValue> aggregateValues = aggregateArray.getValues();
+            aggregateValues.addAll(nextResultArray.getValues());
+            aggregateArray.withValues(aggregateValues);
         } else if (nextResult instanceof Postgresql.LiteralString) {
-            aggregateArray.getValues().add(nextResult.cast());
+            List<TValue> aggregateValues = aggregateArray.getValues();
+            aggregateValues.add(nextResult.cast());
+            aggregateArray.withValues(aggregateValues);
         }
         return aggregate;
     }
@@ -121,11 +125,44 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
 
     @Override
     public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
+        if (ctx.children != null) {
+            List<PostgresqlRightPadded<TValue>> list = new ArrayList<>();
+            for (ParseTree element : ctx.children) {
+                if (element instanceof TerminalNode terminalNode) {
+                    Postgresql.LiteralString literalString = createLiteralString(ctx, terminalNode);
+                    PostgresqlRightPadded<TValue> protoProtoRightPadded = PostgresqlRightPadded.build(literalString);
+                    list.add(protoProtoRightPadded);
+                }
+            }
+            PostgresqlContainer<TValue> container = PostgresqlContainer.build(list);
+            return new Postgresql.Array(randomId(), Space.EMPTY, Markers.EMPTY, container);
+        }
+        return visitChildren(ctx);
+    }
+
+    private Postgresql.LiteralString createLiteralString(
+            PostgreSQLParser.CreatestmtContext ctx,
+            TerminalNode terminalNode
+    ) {
+        return convert(ctx, (c, prefix) -> new Postgresql.LiteralString(
+                        randomId(),
+                        prefix,
+                        Markers.EMPTY,
+                        terminalNode.getSymbol().getText(),
+                        terminalNode.getSymbol().getText()
+                )
+        );
+    }
+
+/*
+    @Override
+    public Postgresql visitCreatestmt(PostgreSQLParser.CreatestmtContext ctx) {
         if (isCreateTableWithoutIfNotExists(ctx)) {
             addIfNotExists(ctx.children, 3);
         }
         return visitChildren(ctx);
     }
+*/
 
     private boolean isCreateTableWithoutIfNotExists(PostgreSQLParser.CreatestmtContext ctx) {
         return checkTerminalNode(ctx.getChild(0), PostgreSQLLexer.CREATE)
@@ -151,6 +188,16 @@ public class PostgresqlParserVisitor extends PostgreSQLParserBaseVisitor<Postgre
     private TerminalNode createTerminalNode(int tokenType) {
         Token token = new CommonToken(tokenType, PostgreSQLParser.VOCABULARY.getLiteralName(tokenType));
         return new TerminalNodeImpl(token);
+    }
+
+    @Override
+    public Postgresql visitOpttemp(PostgreSQLParser.OpttempContext ctx) {
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Postgresql visitOpttableelementlist(PostgreSQLParser.OpttableelementlistContext ctx) {
+        return visitChildren(ctx);
     }
 
     private Space prefix(ParserRuleContext ctx) {
